@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Owner Admin</title>
+<script src="js/vendor/supabase.umd.js"></script>
+<style>
+  :root{--bg:#eef2f5;--card:#fff;--line:#d7e0e4;--ink:#17384a;--muted:#64757c;--brand:#1f4e5f;--ok:#1aa64b;--danger:#c0392b;--gold:#ffd34d}
+  *{box-sizing:border-box;font-family:Inter,Segoe UI,Arial,sans-serif}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5}
+  header{background:var(--brand);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+  header h1{margin:0;font-size:18px}
+  .wrap{max-width:1000px;margin:18px auto;padding:0 16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px;box-shadow:0 6px 20px rgba(23,56,74,.06)}
+  .login{max-width:360px;margin:60px auto}
+  h2{font-size:15px;color:var(--brand);margin:0 0 12px}
+  label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin:10px 0 4px}
+  input,select{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:8px;font-size:15px;color:var(--ink)}
+  .row{display:flex;gap:12px;flex-wrap:wrap}.row>div{flex:1;min-width:150px}
+  button{border:none;border-radius:8px;padding:10px 16px;font-weight:700;font-size:14px;cursor:pointer}
+  .btn{background:var(--brand);color:#fff}.btn.ok{background:var(--ok)}.btn.ghost{background:#eef4f6;color:var(--brand);border:1px solid var(--line)}.btn.danger{background:var(--danger);color:#fff}.btn.sm{padding:5px 10px;font-size:12px}.btn.full{width:100%;margin-top:14px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:8px 8px;border-bottom:1px solid var(--line)}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
+  .tag.on{background:#e6f4ec;color:#137a4b}.tag.off{background:#f2f4f5;color:#8aa0ab}.tag.ban{background:#fdeeee;color:#c0392b}
+  .msg{padding:10px 14px;border-radius:8px;font-size:13px;margin:10px 0;display:none}.msg.show{display:block}.msg.err{background:#fdeeee;color:#c0392b}.msg.good{background:#e6f4ec;color:#137a4b}
+  .hide{display:none}.muted{color:var(--muted);font-size:12px}
+  td.acts{white-space:normal}
+  .acts-wrap{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+  .acts-wrap button{flex:0 0 auto}
+  /* restore dialog */
+  .modal-bg{position:fixed;inset:0;background:rgba(10,30,40,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+  .modal-bg.show{display:flex}
+  .modal{background:#fff;border-radius:14px;max-width:420px;width:100%;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+  .modal h3{margin:0 0 4px;color:var(--brand);font-size:16px}
+  .bklist{max-height:320px;overflow:auto;margin:12px 0;border:1px solid var(--line);border-radius:8px}
+  .bkrow{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--line)}
+  .bkrow:last-child{border-bottom:none}
+  .bkrow b{font-size:14px}.bkrow .muted{display:block}
+  @media(max-width:620px){ .acts-wrap{justify-content:flex-start} th:nth-child(2),td:nth-child(2){display:none} }
+</style></head>
+<body>
+<header><h1>Owner Admin · Shree Shyam Book</h1>
+<span style="display:flex;gap:8px">
+  <button class="btn ghost sm hide" id="btnChangePass">Change my password</button>
+  <button class="btn ghost sm hide" id="btnLogout">Log out</button>
+</span></header>
+
+<!-- LOGIN -->
+<div class="wrap" id="loginWrap">
+  <div class="card login">
+    <h2>Sign in (owner)</h2>
+    <label>Username</label>
+    <input id="inUser" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="e.g. owner">
+    <label>Password</label>
+    <input id="inPass" type="password" autocomplete="current-password">
+    <button class="btn full" id="btnLogin">Sign in</button>
+    <div class="msg" id="loginMsg"></div>
+    <p class="muted">Only the owner account can sign in here.</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="wrap hide" id="appWrap">
+  <div class="card">
+    <h2>Create a new client login</h2>
+    <div class="row">
+      <div><label>Username</label><input id="npUser" placeholder="e.g. rajbook"></div>
+      <div><label>Business name</label><input id="npBiz" placeholder="e.g. Raj Book"></div>
+    </div>
+    <div class="row">
+      <div><label>Password</label><input id="npPass" placeholder="set a password"></div>
+      <div style="flex:0 0 180px"><label>Mobile plan</label>
+        <select id="npMobile">
+          <option value="0">Off (web only)</option>
+          <option value="1">1-day trial</option>
+          <option value="30">1 month</option>
+          <option value="90">3 months</option>
+          <option value="180">6 months</option>
+          <option value="365">1 year</option>
+        </select></div>
+    </div>
+    <div style="margin-top:14px"><button class="btn ok" id="btnCreate">Create client</button></div>
+    <div class="msg" id="createMsg"></div>
+  </div>
+  <div class="card">
+    <h2>Clients
+      <span style="float:right;display:flex;gap:8px">
+        <button class="btn ghost sm" id="btnBackupAll">Back up all now</button>
+        <button class="btn ghost sm" id="btnRefresh">Refresh</button>
+      </span>
+    </h2>
+    <p class="muted" style="margin-top:-4px">Backups are saved on the server automatically every day and kept for the last 10 days per client. Each client's data is stored and restored on its own — never mixed with another client.</p>
+    <div class="msg" id="listMsg"></div>
+    <table><thead><tr><th>Username</th><th>Business</th><th>Subscription</th><th>Mobile</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="clientBody"><tr><td colspan="6" class="muted">Loading…</td></tr></tbody></table>
+  </div>
+
+  <!-- DESKTOP LICENSES -->
+  <div class="card">
+    <h2>Desktop app licenses
+      <span style="float:right"><button class="btn ghost sm" id="btnLicRefresh">Refresh</button></span>
+    </h2>
+    <p class="muted" style="margin-top:-4px">Generate a code, give it to the client. On first run the app binds that code to their PC or pendrive for 1 year. A code is not transferable to another device.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
+      <div><label>Device type</label><br>
+        <select id="licType"><option value="pc">PC (this computer)</option><option value="pendrive">Pendrive</option></select></div>
+      <div><label>Client username</label><br><input id="licClient" placeholder="e.g. raju"></div>
+      <div style="flex:1;min-width:140px"><label>Note (optional)</label><br><input id="licNote" placeholder="shop name / remark" style="width:100%"></div>
+      <div><button class="btn ok" id="btnLicGen">Generate code</button></div>
+    </div>
+    <div class="msg" id="licMsg"></div>
+    <div id="licCodeBox" style="display:none;margin:10px 0;padding:12px 14px;background:#f1f8f4;border:1px solid #bfe3cc;border-radius:10px">
+      <b>New code:</b> <span id="licCode" style="font-size:20px;letter-spacing:2px;font-family:monospace"></span>
+      <button class="btn ghost sm" id="btnLicCopy" style="margin-left:10px">Copy</button>
+    </div>
+    <table><thead><tr><th>Code</th><th>Type</th><th>Client</th><th>Status</th><th>Activated</th><th>Expires</th><th>Actions</th></tr></thead>
+      <tbody id="licBody"><tr><td colspan="7" class="muted">—</td></tr></tbody></table>
+  </div>
+</div>
+
+<!-- RESTORE (date-wise) DIALOG -->
+<div class="modal-bg" id="restoreBg">
+  <div class="modal">
+    <h3 id="restoreTitle">Restore a client</h3>
+    <p class="muted" id="restoreSub">Pick the day to restore from. The client's current data will be replaced with that day's backup.</p>
+    <div class="bklist" id="bkList"></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px">
+      <button class="btn ghost sm" id="btnRestoreClose">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Public values (same as the app's config.js — safe to be here; the master key is NEVER here).
+const SUPABASE_URL = "https://uxvroodzhtuycsmewgid.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4dnJvb2R6aHR1eWNzbWV3Z2lkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3OTQ3MDcsImV4cCI6MjEwMDM3MDcwN30.OeTNWIm9boniHvDbYX7NBW5h-3-ZPBy_9qFlfAWXrHw";
+const DOMAIN = "@books.local";
+const FN = SUPABASE_URL + "/functions/v1/admin";
+let _admStore; try { _admStore = window.sessionStorage; _admStore.getItem("x"); } catch(e){ _admStore = undefined; }
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { persistSession: true, autoRefreshToken: true, storage: _admStore }
+});
+
+const $ = (id) => document.getElementById(id);
+function show(el){ el.classList.remove("hide"); } function hide(el){ el.classList.add("hide"); }
+function msg(el, t, k){ el.textContent = t; el.className = "msg show " + (k||""); setTimeout(()=>{ if(el.textContent===t) el.className="msg"; }, 6000); }
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function uname(email){ return (email||"").endsWith(DOMAIN) ? (email||"").replace(DOMAIN,"") : (email||""); }
+function mobileCell(until){
+  if(!until) return '<span class="tag off">Off</span>';
+  const ms = Date.parse(until);
+  if(isNaN(ms) || ms < Date.now()) return '<span class="tag off">Expired</span>';
+  const days = Math.ceil((ms - Date.now())/86400000);
+  return `<span class="tag on">${days}d left</span>`;
+}
+function accessCell(until){
+  if(!until) return '<span class="tag off">No access</span>';
+  const ms = Date.parse(until);
+  if(isNaN(ms) || ms < Date.now()) return '<span class="tag ban">Expired</span>';
+  const days = Math.ceil((ms - Date.now())/86400000);
+  if(ms > Date.parse('2090-01-01')) return '<span class="tag on">Owner</span>';
+  return `<span class="tag on">${days}d left</span>`;
+}
+function planDays(s){
+  s=(s||"").trim().toLowerCase();
+  const m={off:0,"0":0,trial:1,"1d":1,"1w":7,"1m":30,"1month":30,"3m":90,"6m":180,"1y":365,"12m":365,year:365};
+  if(s in m) return m[s];
+  const n=parseInt(s,10); return isNaN(n)?null:n;
+}
+
+// Call the protected Edge Function with the owner's token.
+async function api(payload){
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) throw new Error("Signed out");
+  const r = await fetch(FN, {
+    method:"POST",
+    headers:{ "Authorization":"Bearer "+session.access_token, "apikey":SUPABASE_ANON_KEY, "Content-Type":"application/json" },
+    body: JSON.stringify(payload)
+  });
+  const j = await r.json().catch(()=>({error:"Bad response"}));
+  if (!r.ok || j.error) throw new Error(friendly(j.error) || ("HTTP "+r.status));
+  return j;
+}
+function friendly(m){
+  if (!m) return m;
+  if (/duplicate|already registered|already exists/i.test(m)) return "That username is already taken — pick a different one.";
+  if (/password/i.test(m) && /short|least|weak/i.test(m)) return "Password is too short (use at least 6 characters).";
+  return m;
+}
+
+$("btnLogin").addEventListener("click", doLogin);
+$("inPass").addEventListener("keydown", e=>{ if(e.key==="Enter") doLogin(); });
+async function doLogin(){
+  const u = $("inUser").value.trim().toLowerCase();
+  const p = $("inPass").value;
+  if (!u || !p) return msg($("loginMsg"), "Enter username and password.", "err");
+  const email = u.includes("@") ? u : u + DOMAIN;
+  const { error } = await sb.auth.signInWithPassword({ email, password: p });
+  if (error) return msg($("loginMsg"), "Login failed.", "err");
+  try { await enterApp(); }
+  catch(e){ await sb.auth.signOut(); msg($("loginMsg"), e.message || "Not allowed.", "err"); }
+}
+
+async function enterApp(){
+  await loadClients();          // will throw "You are not an admin." for non-owners
+  hide($("loginWrap")); show($("appWrap")); show($("btnLogout")); show($("btnChangePass"));
+  loggedIn = true; resetIdle();
+  loadLicenses().catch(()=>{});
+}
+
+// ---- Desktop licenses ----
+function licDay(s){ if(!s) return "—"; const d=new Date(s); return isNaN(d)?"—":d.toLocaleDateString(); }
+async function loadLicenses(){
+  try {
+    const { licenses } = await api({ action:"lic_list" });
+    const b = $("licBody");
+    if (!licenses || !licenses.length){ b.innerHTML = '<tr><td colspan="7" class="muted">No codes yet.</td></tr>'; return; }
+    const now = Date.now();
+    b.innerHTML = licenses.map(l=>{
+      const expd = l.expires_at && Date.parse(l.expires_at) <= now;
+      const state = l.status==="revoked" ? "revoked"
+        : !l.activated_at ? "not used"
+        : expd ? "expired" : "active";
+      const esc = s => String(s||"").replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+      return `<tr>
+        <td style="font-family:monospace">${esc(l.code)}</td>
+        <td>${esc(l.type)}</td>
+        <td>${esc(l.client_user)||"—"}</td>
+        <td>${state}</td>
+        <td>${licDay(l.activated_at)}</td>
+        <td>${licDay(l.expires_at)}</td>
+        <td>
+          <button class="btn ghost sm" data-lic="renew" data-code="${esc(l.code)}">Renew 1yr</button>
+          <button class="btn ghost sm" data-lic="rebind" data-code="${esc(l.code)}">Unbind</button>
+          ${l.status==="revoked"
+            ? ""
+            : `<button class="btn ghost sm" data-lic="revoke" data-code="${esc(l.code)}">Revoke</button>`}
+        </td></tr>`;
+    }).join("");
+  } catch(e){ msg($("licMsg"), e.message, "err"); }
+}
+$("btnLicRefresh").addEventListener("click", ()=>loadLicenses());
+$("btnLicGen").addEventListener("click", async ()=>{
+  const type = $("licType").value;
+  const client_user = $("licClient").value.trim().toLowerCase();
+  const note = $("licNote").value.trim();
+  try {
+    const { code } = await api({ action:"lic_generate", type, client_user, note });
+    $("licCode").textContent = code; show($("licCodeBox"));
+    msg($("licMsg"), "Code generated. Give it to the client.", "good");
+    $("licNote").value = "";
+    loadLicenses();
+  } catch(e){ msg($("licMsg"), e.message, "err"); }
+});
+$("btnLicCopy").addEventListener("click", ()=>{
+  const t = $("licCode").textContent;
+  navigator.clipboard?.writeText(t); msg($("licMsg"), "Copied: "+t, "good");
+});
+$("licBody").addEventListener("click", async (e)=>{
+  const btn = e.target.closest("[data-lic]"); if(!btn) return;
+  const act = btn.getAttribute("data-lic"), code = btn.getAttribute("data-code");
+  try {
+    if (act==="revoke"){ if(!confirm("Revoke "+code+"? The app on that device will stop opening.")) return; await api({ action:"lic_revoke", code }); }
+    if (act==="renew"){ await api({ action:"lic_renew", code }); }
+    if (act==="rebind"){ if(!confirm("Unbind "+code+" so it can activate on a new device?")) return; await api({ action:"lic_rebind", code }); }
+    msg($("licMsg"), code+" updated.", "good");
+    loadLicenses();
+  } catch(err){ msg($("licMsg"), err.message, "err"); }
+});
+
+// ---- Change the OWNER's own sign-in password ----
+$("btnChangePass").addEventListener("click", async ()=>{
+  const p1 = prompt("Enter a new password for your owner login (at least 6 characters):");
+  if (p1 === null) return;
+  if (p1.length < 6) return msg($("listMsg"), "Password is too short (use at least 6 characters).", "err");
+  const p2 = prompt("Type the new password again to confirm:");
+  if (p2 === null) return;
+  if (p1 !== p2) return msg($("listMsg"), "The two passwords did not match — nothing was changed.", "err");
+  try {
+    const { error } = await sb.auth.updateUser({ password: p1 });
+    if (error) throw error;
+    msg($("listMsg"), "Your owner password was changed. Use it next time you sign in.", "good");
+  } catch(e){ msg($("listMsg"), friendly(e.message) || "Could not change password.", "err"); }
+});
+
+$("btnLogout").addEventListener("click", async ()=>{
+  try { await api({ action:"backup_all" }); } catch(e){ /* best effort */ }
+  loggedIn = false; clearTimeout(idleTimer);
+  await sb.auth.signOut(); location.reload();
+});
+$("btnRefresh").addEventListener("click", ()=>loadClients().catch(e=>msg($("listMsg"),e.message,"err")));
+
+async function loadClients(){
+  const { users, profiles } = await api({ action:"list" });
+  const pmap = {}; (profiles||[]).forEach(p=>pmap[p.owner]=p);
+  const rows = (users||[]).map(u=>{
+    const pr = pmap[u.id] || {};
+    const banned = u.banned_until && new Date(u.banned_until) > new Date();
+    const isUser = (u.email||"").endsWith(DOMAIN);
+    return `<tr>
+      <td><b>${esc(isUser?uname(u.email):(u.email||""))}</b>${isUser?'':' <span class="muted">(email login — Set username)</span>'}</td>
+      <td>${pr.business_name?esc(pr.business_name):'<span class="muted">—</span>'}</td>
+      <td>${accessCell(pr.access_until)}</td>
+      <td>${mobileCell(pr.mobile_until)}</td>
+      <td>${banned?'<span class="tag ban">Suspended</span>':'<span class="tag on">Active</span>'}</td>
+      <td class="acts"><div class="acts-wrap">
+        <button class="btn ok sm" data-act="grant_year" data-id="${u.id}">+1 year</button>
+        <button class="btn ghost sm" data-act="grant_month" data-id="${u.id}">+1 month</button>
+        <button class="btn danger sm" data-act="end_access" data-id="${u.id}">End access</button>
+        <button class="btn ghost sm" data-act="mobile_plan" data-id="${u.id}">Mobile plan</button>
+        <button class="btn ghost sm" data-act="set_username" data-id="${u.id}">Set username</button>
+        <button class="btn ghost sm" data-act="rename" data-id="${u.id}">Rename</button>
+        <button class="btn ghost sm" data-act="password" data-id="${u.id}">Reset password</button>
+        <button class="btn ghost sm" data-act="backup" data-id="${u.id}" data-name="${esc(isUser?uname(u.email):(u.email||''))}">Back up</button>
+        <button class="btn ghost sm" data-act="restore" data-id="${u.id}" data-name="${esc(isUser?uname(u.email):(u.email||''))}">Restore</button>
+        <button class="btn ${banned?'ok':'danger'} sm" data-act="ban" data-id="${u.id}" data-banned="${!!banned}">${banned?'Unsuspend':'Suspend'}</button>
+        <button class="btn danger sm" data-act="delete" data-id="${u.id}" data-name="${esc(isUser?uname(u.email):(u.email||''))}">Delete</button>
+      </div></td></tr>`;
+  }).join("");
+  $("clientBody").innerHTML = rows || '<tr><td colspan="6" class="muted">No clients yet.</td></tr>';
+  bindRows();
+}
+
+$("btnCreate").addEventListener("click", async ()=>{
+  const username = $("npUser").value.trim().toLowerCase();
+  const business_name = $("npBiz").value.trim();
+  const password = $("npPass").value;
+  const mobile_days = parseInt($("npMobile").value, 10) || 0;
+  if (!username || !password) return msg($("createMsg"), "Username and password required.", "err");
+  try {
+    await api({ action:"create", username, password, business_name, mobile_days });
+    msg($("createMsg"), `Client "${username}" created.`, "good");
+    $("npUser").value=""; $("npBiz").value=""; $("npPass").value=""; $("npMobile").value="false";
+    await loadClients();
+  } catch(e){ msg($("createMsg"), e.message, "err"); }
+});
+
+function bindRows(){
+  document.querySelectorAll("#clientBody button[data-act]").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      const id = btn.getAttribute("data-id"); const act = btn.getAttribute("data-act");
+      try {
+        if (act==="grant_year"){ await api({ action:"set_access", id, days:365 }); msg($("listMsg"),"Subscription extended by 1 year.","good"); }
+        else if (act==="grant_month"){ await api({ action:"set_access", id, days:30 }); msg($("listMsg"),"Subscription extended by 1 month.","good"); }
+        else if (act==="end_access"){ if(!confirm("End this client's subscription now? Their data access stops immediately until you grant again.")) return; await api({ action:"revoke_access", id }); msg($("listMsg"),"Subscription ended.","good"); }
+        else if (act==="mobile_plan"){ const s=prompt("Mobile plan — type: trial (1 day), 1m, 3m, 6m, 1y, off, or a number of days:"); if(s===null) return; const d=planDays(s); if(d===null){ msg($("listMsg"),"Didn't understand that plan.","err"); return; } await api({ action:"mobile_plan", id, days:d }); }
+        else if (act==="set_username"){ const n=prompt("New username (no email):"); if(!n) return; await api({ action:"set_username", id, username:n }); }
+        else if (act==="rename"){ const n=prompt("New business name:"); if(n===null) return; await api({ action:"rename", id, business_name:n }); }
+        else if (act==="password"){ const n=prompt("New password:"); if(!n) return; await api({ action:"password", id, password:n }); alert("Password updated."); }
+        else if (act==="ban") await api({ action:"ban", id, banned: btn.getAttribute("data-banned")==="true" });
+        else if (act==="backup"){ const nm=btn.getAttribute("data-name")||"client"; await api({ action:"backup_now", id }); msg($("listMsg"),`Saved today's backup for "${nm}" on the server.`,"good"); return; }
+        else if (act==="restore"){ const nm=btn.getAttribute("data-name")||"client"; openRestore(id, nm); return; }
+        else if (act==="delete"){ const nm=btn.getAttribute("data-name")||"this account"; if(!confirm(`Permanently DELETE "${nm}"? This removes the login and cannot be undone.`)) return; await api({ action:"delete", id }); }
+        await loadClients();
+      } catch(e){ msg($("listMsg"), e.message, "err"); }
+    });
+  });
+}
+
+// ---- "Back up all now" ----
+$("btnBackupAll").addEventListener("click", async ()=>{
+  try { const r = await api({ action:"backup_all" }); msg($("listMsg"), `Saved today's backup for ${r.count||0} client(s) on the server.`, "good"); }
+  catch(e){ msg($("listMsg"), e.message, "err"); }
+});
+
+// ---- Date-wise restore (from the server) ----
+function fmtDay(b){
+  const d = new Date(b.taken_at);
+  const day = b.day || d.toISOString().slice(0,10);
+  const t = d.toLocaleString(undefined,{hour:'2-digit',minute:'2-digit'});
+  return { day, t };
+}
+async function openRestore(id, nm){
+  $("restoreTitle").textContent = `Restore "${nm}"`;
+  $("bkList").innerHTML = '<div class="bkrow"><span class="muted">Loading backups…</span></div>';
+  $("restoreBg").classList.add("show");
+  try {
+    const { backups } = await api({ action:"list_backups", id });
+    if (!backups || !backups.length){ $("bkList").innerHTML = '<div class="bkrow"><span class="muted">No backups yet for this client.</span></div>'; return; }
+    $("bkList").innerHTML = backups.map(b=>{
+      const f = fmtDay(b);
+      return `<div class="bkrow"><span><b>${esc(f.day)}</b><span class="muted">saved ${esc(f.t)}</span></span>
+        <button class="btn sm" data-bk="${b.id}" data-day="${esc(f.day)}">Restore this day</button></div>`;
+    }).join("");
+    $("bkList").querySelectorAll("button[data-bk]").forEach(bt=>{
+      bt.addEventListener("click", async ()=>{
+        const backup_id = bt.getAttribute("data-bk"); const day = bt.getAttribute("data-day");
+        if(!confirm(`Restore "${nm}" to the backup from ${day}?\n\nThe client's CURRENT data will be REPLACED with that day's backup. This cannot be undone.`)) return;
+        try { await api({ action:"restore_from", id, backup_id }); $("restoreBg").classList.remove("show"); msg($("listMsg"),`"${nm}" restored to ${day}.`,"good"); await loadClients(); }
+        catch(e){ msg($("listMsg"), e.message, "err"); }
+      });
+    });
+  } catch(e){ $("bkList").innerHTML = `<div class="bkrow"><span class="err">${esc(e.message)}</span></div>`; }
+}
+$("btnRestoreClose").addEventListener("click", ()=>$("restoreBg").classList.remove("show"));
+$("restoreBg").addEventListener("click", e=>{ if(e.target===$("restoreBg")) $("restoreBg").classList.remove("show"); });
+
+// ---- Auto log out after 4 hours of inactivity (backs everyone up first) ----
+const IDLE_MS = 4*60*60*1000;
+let idleTimer = null, loggedIn = false;
+function resetIdle(){
+  if(!loggedIn) return;
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(doAutoLogout, IDLE_MS);
+}
+async function doAutoLogout(){
+  try { await api({ action:"backup_all" }); } catch(e){ /* best effort */ }
+  try { await sb.auth.signOut(); } catch(e){}
+  alert("You were signed out after 4 hours of inactivity. A backup was saved.");
+  location.reload();
+}
+["click","keydown","mousemove","scroll","touchstart"].forEach(ev=>document.addEventListener(ev, resetIdle, {passive:true}));
+
+// ---- If already signed in (returning), try to enter. ----
+sb.auth.getSession().then(({data})=>{ if(data.session){ enterApp().catch(()=>{}); } });
+</script>
+</body></html>

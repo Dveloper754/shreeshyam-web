@@ -1,0 +1,759 @@
+:root{
+  --bg:#eef2f5; --card:#fff; --ink:#1b2733; --muted:#6b7c8c; --line:#dde5ea;
+  --brand:#1f4e5f; --brand2:#2c6e7f; --green:#137a4b; --green-bg:#e6f4ec;
+  --red:#b23b3b; --red-bg:#fbeaea; --amber:#b7791f; --blue:#2456a6;
+  --shadow:0 1px 3px rgba(16,40,60,.09),0 1px 2px rgba(16,40,60,.05);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45}
+button{font-family:inherit}
+input,select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px;
+  background:#fff;color:var(--ink)}
+input:focus,select:focus{outline:none;border-color:var(--brand2);box-shadow:0 0 0 3px rgba(44,110,127,.13)}
+label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:8px 0 4px}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.muted{color:var(--muted)}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.g{color:var(--green)} .r{color:var(--red)}
+
+/* buttons */
+.btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:9px 14px;border-radius:8px;
+  font-weight:600;cursor:pointer;font-size:14px;white-space:nowrap}
+.btn:hover{filter:brightness(.97)}
+.btn.sm{padding:6px 10px;font-size:13px}
+.btn.full{width:100%;margin-top:10px}
+.btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+.btn.ghost{background:#fff;color:var(--brand)}
+.btn.info{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn.danger{background:var(--red);color:#fff;border-color:var(--red)}
+.btn.warn{background:var(--amber);color:#fff;border-color:var(--amber)}
+.btn.recv{background:var(--green);color:#fff;border-color:var(--green)}
+.btn.paid{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* config warning */
+.config-warning{max-width:560px;margin:60px auto;background:#fff;border:1px solid var(--line);
+  border-radius:12px;padding:24px 28px;box-shadow:var(--shadow)}
+.config-warning code{background:#f0f3f5;padding:2px 6px;border-radius:5px}
+
+/* login */
+.login-view{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+  background:linear-gradient(135deg,#1f4e5f,#2c6e7f)}
+.login-card{background:#fff;border-radius:14px;padding:28px;width:100%;max-width:360px;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+.login-card h1{margin:0;font-size:20px;color:var(--brand)}
+.login-sub{margin:2px 0 14px;color:var(--muted);font-size:13px}
+.hint{font-size:12px;color:var(--muted);margin-top:10px}
+
+/* topbar */
+.topbar{background:var(--brand);color:#fff;padding:11px 18px;display:flex;justify-content:space-between;
+  align-items:center;position:sticky;top:0;z-index:20;box-shadow:var(--shadow)}
+.brand{font-weight:600;font-size:16px}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.user-email{font-size:12px;opacity:.85}
+
+.wrap{max-width:1080px;margin:0 auto;padding:16px 16px 96px}
+
+/* party bar */
+.party-bar{display:flex;gap:16px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;
+  background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow)}
+.party-pick{min-width:260px;flex:1}
+.party-pick .row{align-items:center}
+.party-pick select{flex:3}
+.closing{text-align:right;min-width:220px}
+.closing-party{font-size:13px;color:var(--muted);font-weight:600}
+.closing-line{display:flex;gap:12px;align-items:baseline;justify-content:flex-end;margin-top:2px}
+.closing-line>span:first-child{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+.closing-value{font-size:26px;font-weight:800;color:var(--brand)}
+.closing-value.bal-pos{color:var(--green)} .closing-value.bal-neg{color:var(--red)} .closing-value.bal-zero{color:var(--muted)}
+.closing-sub{font-size:12px;color:var(--muted)}
+.empty-hint{text-align:center;color:var(--muted);padding:40px}
+
+/* panels & tables */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);
+  margin-top:14px;overflow:hidden}
+.panel-title{padding:10px 14px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+  color:var(--muted);border-bottom:1px solid var(--line);display:flex;justify-content:space-between}
+.panel-title.g{color:var(--green);background:var(--green-bg)}
+.panel-title.r{color:var(--red);background:var(--red-bg)}
+.panel-title .tot{font-weight:800}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);
+  padding:8px 12px;border-bottom:1px solid var(--line);background:#f7fafb}
+td{padding:8px 12px;border-bottom:1px solid var(--line)}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:#f6fafb}
+tr.op td{background:#eef4f6;font-weight:600}
+/* amber ledger-row selection — scoped to the Received/Paid ledgers only
+   (a global !important here used to override every other table's selection colour) */
+#recvBody tr.sel td,#paidBody tr.sel td{background:#fff6e5;box-shadow:inset 3px 0 0 var(--amber)}
+.ledger td:first-child,.mini td:first-child{white-space:nowrap;color:var(--muted)}
+
+/* toolbar */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.toolbar .btn{flex:0 0 auto}
+
+/* split */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.split .panel{margin-top:0}
+@media(max-width:720px){.split{grid-template-columns:1fr}}
+
+/* entry bar */
+.entrybar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);
+  box-shadow:0 -2px 10px rgba(16,40,60,.08);z-index:25;padding:8px}
+.eb-wrap{max-width:1080px;margin:0 auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.eb-wrap #entryParty{flex:2;min-width:140px}
+.eb-wrap #entryAmount{flex:1;min-width:100px}
+.eb-wrap #entryRemark{flex:2;min-width:120px}
+.eb-wrap #entryMode{flex:0 0 90px}
+.eb-wrap #entryDate{flex:0 0 150px}
+.eb-wrap .btn{flex:0 0 auto}
+@media(max-width:640px){
+  .eb-wrap #entryDate,.eb-wrap #entryMode{flex:1 1 46%}
+  .eb-wrap .btn{flex:1 1 46%}
+}
+.eb-hint{max-width:1080px;margin:6px auto 0;font-size:11px;color:var(--muted);text-align:center;line-height:1.4}
+
+/* modals */
+.modal{position:fixed;inset:0;background:rgba(20,35,45,.45);display:none;align-items:center;justify-content:center;
+  z-index:40;padding:16px}
+.modal.show{display:flex}
+.box{background:#fff;border-radius:14px;width:100%;max-width:720px;max-height:88vh;overflow:auto;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+.box.sm{max-width:420px}
+.box-head{position:sticky;top:0;background:#fff;padding:14px 16px;border-bottom:1px solid var(--line);
+  font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.box-body{padding:16px}
+.x{cursor:pointer;color:var(--muted);font-weight:700}
+.period{margin-bottom:16px}
+.period-head{font-size:13px;font-weight:600;color:var(--brand);margin-bottom:6px}
+
+/* tab nav */
+.tabnav{display:flex;gap:4px;background:#183f4c;padding:0 10px;position:sticky;top:46px;z-index:19;overflow-x:auto}
+.tab-btn{background:none;border:none;color:#bcd6dd;padding:12px 16px;font-weight:600;font-size:14px;cursor:pointer;
+  border-bottom:3px solid transparent;white-space:nowrap}
+.tab-btn:hover{color:#fff}
+.tab-btn.active{color:#fff;border-bottom-color:#f4b400}
+.view{min-height:40vh}
+
+/* Khatu Shyam banner */
+.shyam-banner{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:16px;
+  background:linear-gradient(135deg,#10233b 0%,#1f4e5f 55%,#2c6e7f 100%);
+  border-radius:16px;padding:22px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.shyam-banner::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0,rgba(244,180,0,.18),transparent 60%);pointer-events:none}
+.feather{width:56px;height:112px;flex:0 0 auto;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))}
+.feather.flip{transform:scaleX(-1)}
+.shyam-text{text-align:center;color:#fff}
+.shyam-hi{font-size:30px;font-weight:800;color:#ffd34d;letter-spacing:.5px;line-height:1.1;
+  text-shadow:0 2px 6px rgba(0,0,0,.35)}
+.shyam-sub{font-size:16px;color:#ffe9a8;margin-top:2px}
+.shyam-biz{font-size:13px;color:#cfe4ea;margin-top:8px;text-transform:uppercase;letter-spacing:1px}
+@media(max-width:560px){.shyam-hi{font-size:23px}.feather{width:42px;height:84px}}
+
+/* home cards */
+.home-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:18px}
+.home-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 18px;cursor:pointer;
+  box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px;text-align:left;transition:.15s}
+.home-card:hover{transform:translateY(-2px);border-color:var(--brand2)}
+.home-card .hc-t{font-size:18px;font-weight:700;color:var(--brand)}
+.home-card .hc-d{font-size:13px;color:var(--muted)}
+
+/* trial balance */
+.trial-head{display:flex;justify-content:space-between;align-items:center;margin:16px 0 4px}
+.trial-head h2{margin:0;font-size:18px;color:var(--brand)}
+.trial-actions{display:flex;gap:6px;flex-wrap:wrap}
+.trial-net{text-align:center;color:var(--muted);margin-top:14px;font-size:13px}
+.mini td.pname{font-weight:600;color:var(--ink);white-space:normal}
+.mini tr.total-row td{border-top:2px solid var(--brand);background:#eef4f6;font-size:15px;padding-top:10px;padding-bottom:10px}
+/* soft-deleted entries: shown but not counted */
+tr.del-row td{background:#fdeeee;color:#d08a8a;text-decoration:line-through}
+tr.del-row td:first-child{text-decoration:none}
+
+/* settings */
+.settings-wrap{max-width:520px}
+.settings-wrap .panel{margin-top:16px}
+.settings-wrap .box-body .btn{margin-top:12px}
+
+/* ledger view (in-app + printable) */
+.lv-actions{display:flex;align-items:center;gap:12px}
+.lv-head h1{font-size:18px;margin:0 0 2px;color:var(--brand)}
+.lv-sub{color:var(--muted);font-size:12px;margin:0 0 12px}
+.lv-table{width:100%;border-collapse:collapse}
+.lv-table th{background:var(--brand);color:#fff;text-align:left;padding:7px 9px;font-size:11px;text-transform:uppercase}
+.lv-table td{padding:7px 9px;border-bottom:1px solid var(--line)}
+.lv-table tbody tr:nth-child(even) td{background:#f4f8f9}
+.lv-table tfoot td{border-top:2px solid var(--brand);background:#eef4f6}
+
+@media print {
+  body > *:not(#ledgerViewModal){display:none !important}
+  #ledgerViewModal{position:static;background:none;display:block !important;padding:0}
+  #ledgerViewModal .box{max-width:none;max-height:none;box-shadow:none;border-radius:0}
+  #ledgerViewModal .box-head{border:none;padding:0 0 8px}
+  #ledgerViewModal .lv-actions{display:none !important}
+  #ledgerViewModal #ledgerViewTitle{display:none}
+}
+
+/* settlement report */
+.settlement-bar{display:flex;gap:12px;align-items:center;margin:8px 0 4px;flex-wrap:wrap}
+.settlement-bar input{flex:1;min-width:180px}
+.st-summary{font-size:12px;color:var(--muted)}
+.settlement-table th.sel-col,.settlement-table td.sel-col{text-align:center;width:56px}
+.settlement-table td.pname{cursor:pointer}
+.settlement-table td .tag{font-size:10px}
+.mf-badge{display:inline-block;min-width:44px;text-align:center;padding:3px 10px;border-radius:6px;font-weight:700;font-size:12px}
+.mf-badge.yes{background:#1db81d;color:#fff}
+.mf-badge.no{background:#f39a12;color:#fff}
+
+/* backup & restore */
+.switch{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink);cursor:pointer;margin-bottom:12px}
+.switch input{width:auto}
+.switch span{font-weight:500}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.bk-list{margin-top:14px;border-top:1px solid var(--line)}
+.bk-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line);font-size:13px}
+.bk-item .bk-when{font-weight:600}
+.bk-item .bk-kind{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+
+/* toast */
+.toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%) translateY(12px);opacity:0;
+  background:var(--ink);color:#fff;padding:11px 16px;border-radius:9px;box-shadow:var(--shadow);
+  z-index:60;transition:.25s;max-width:90%;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--red)}
+
+/* ===== Trading module ===== */
+.section-head{display:flex;justify-content:space-between;align-items:center;margin:4px 0 14px;gap:12px;flex-wrap:wrap}
+.section-head h2{margin:0;font-size:20px;color:#1f4e5f}
+.tr-toolbar{justify-content:flex-end}
+.tr-toolbar .toolbar{flex-wrap:wrap;gap:8px}
+.btn.ok{background:#1aa64b;color:#fff;border-color:#1aa64b}
+
+/* ===== Trading two-screen split ===== */
+/* use the full window for the trading screens */
+#tradingView .wrap{max-width:100%;padding:16px 12px 12px}
+#trDetail{height:calc(100vh - 150px);min-height:320px}
+/* MATCH pane: tables scroll, entry bar pinned to this pane's bottom */
+#trPaneMain .pane-body{display:flex;flex-direction:column;overflow:hidden;gap:8px}
+#trMainTables{flex:1 1 auto;overflow:auto;min-height:0}
+#trEntryBar{position:static;left:auto;right:auto;bottom:auto;box-shadow:none;
+  border-top:1px solid var(--line);padding:8px 0 0;margin-top:2px}
+.tr-split{display:flex;gap:12px;align-items:stretch;height:100%}
+.tr-pane{flex:1 1 0;min-width:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;display:flex;flex-direction:column;height:100%}
+.tr-pane .pane-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;
+  background:#eef4f6;color:#1f4e5f;font-weight:800;padding:8px 12px;border-bottom:1px solid var(--line)}
+.tr-pane .pane-head .toolbar{flex-wrap:wrap;gap:7px}
+.tr-pane.book .pane-head.bookhead{background:#ffe3cc;color:#5a3b22}
+.pane-head .pane-btns{display:flex;gap:4px}
+.pane-max,.pane-close{border:none;background:transparent;cursor:pointer;font-size:16px;line-height:1;
+  padding:3px 7px;border-radius:6px;color:inherit}
+.pane-max:hover,.pane-close:hover{background:rgba(0,0,0,.08)}
+.tr-pane .pane-body{padding:10px;overflow:auto;flex:1 1 auto}
+.bf-sub{text-align:center;padding:6px 4px 10px;font-weight:700;color:#1f4e5f}
+/* maximise: one screen fills, the others hide */
+.tr-split.max-main .tr-pane.session,
+.tr-split.max-main .tr-pane.report{display:none}
+.tr-split.max-right #trPaneMain{display:none}
+/* Session Report landing screen */
+.pane-head.reporthead{background:#cfe0ec;color:#17384a}
+#matchReport{border:1px solid var(--line);border-radius:10px;overflow:hidden;max-width:1000px}
+/* New Party (client) form */
+.np-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.np-sec{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fafcfd}
+.np-sec-h{font-weight:800;color:#1f4e5f;background:#cfe0ec;margin:-10px -12px 8px;padding:6px 12px;border-radius:9px 9px 0 0;font-size:13px}
+.np-sec label{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:600;font-size:12px;margin:5px 0}
+.np-sec label input,.np-sec label select{width:120px;padding:4px 6px}
+.np-sec label.np-chk{justify-content:flex-start;color:#b35b00}
+.np-sec label.np-chk input{width:auto}
+@media (max-width:820px){.np-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.np-grid{grid-template-columns:1fr}}
+/* New Match modal */
+.mm-top{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}
+.mm-horses-label{font-weight:700;color:#1f4e5f;margin:14px 0 6px}
+.mm-horses{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mm-horses input{width:100%}
+@media (max-width:560px){.mm-horses{grid-template-columns:repeat(2,1fr)}.mm-top{grid-template-columns:1fr}}
+/* Reports landing cards */
+.rp-cards{display:flex;flex-wrap:wrap;gap:14px}
+.rp-card{display:flex;flex-direction:column;gap:4px;align-items:flex-start;text-align:left;
+  background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;min-width:260px;cursor:pointer;box-shadow:var(--shadow)}
+.rp-card b{color:#1f4e5f;font-size:16px}
+.rp-card span{color:var(--muted);font-size:12px}
+.rp-card:hover{border-color:var(--brand)}
+/* FoxPro-style report screens */
+.fx-titlebar{background:#aecbe3;color:#17384a;font-weight:800;padding:8px 12px;border-radius:8px 8px 0 0;letter-spacing:.3px}
+.fx-titlebar.teal{background:#13b3c6;color:#fff;text-align:center}
+.fx-toolbar{display:flex;align-items:center;gap:10px;background:#e9eef2;padding:8px 10px;border:1px solid var(--line);border-top:none}
+.fx-toolbar input[type=date]{padding:5px 8px}
+table.fx-table{width:100%;border-collapse:collapse}
+table.fx-table th{background:#cfe0ec;color:#17384a;border:1px solid #b7c7d3;padding:7px 10px;text-align:left}
+table.fx-table td{border:1px solid #d7dfe6;padding:6px 10px}
+table.fx-table.green thead th{background:#cfe0ec;color:#17384a}
+table.fx-table tbody tr.sel td{background:#1769c4;color:#fff}
+.fx-split{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.fx-col{flex:1 1 380px;min-width:300px}
+.fx-box{max-height:260px;border:1px solid var(--line);border-radius:0 0 8px 8px}
+.fx-filters{background:#eef0ff;border:1px solid #c9ccf0;border-top:none;padding:12px;border-radius:0 0 8px 8px}
+.fx-group{margin-bottom:10px}
+.fx-grp-title{font-weight:800;color:#5a3b8a;margin-bottom:6px}
+.fx-filters label{display:inline-flex;align-items:center;gap:6px;margin:3px 10px 3px 0;font-weight:600;font-size:13px}
+.fx-filters input{padding:4px 7px;width:120px}
+.fx-btns{display:flex;gap:10px;margin-top:6px}
+.fx-results{margin-top:14px;max-height:360px;border:1px solid var(--line);border-radius:8px}
+/* Connect Report */
+#connectView{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.cn-filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+.cn-filters label{display:flex;align-items:center;gap:6px;font-weight:700}
+.cn-filters input[type=checkbox]{width:auto}
+.cn-filters .chip{padding:4px 10px;border-radius:6px}
+.cn-filters .chip-match{background:#e040a0;color:#fff}
+.cn-filters .chip-session{background:#aec92a;color:#1b2a00}
+.cn-filters input[type=date]{padding:5px 8px}
+.cn-grids{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.cn-left{flex:1 1 380px;min-width:300px}
+.cn-right{flex:1 1 380px;min-width:300px}
+.cn-sub{background:#cfe0ec;color:#17384a;font-weight:800;text-align:center;padding:6px;border-radius:6px;margin:4px 0}
+.cn-box{max-height:300px;border:1px solid var(--line);border-radius:8px}
+.cn-box.tall{max-height:640px}
+.report-box{padding:12px}
+.sr-toolbar{flex-wrap:wrap;gap:7px;margin:0 0 10px}
+/* Match Book overlay window */
+/* Match Book covers the right (session) pane; the session stays underneath and returns on close */
+.tr-split{position:relative}
+.book-overlay{position:absolute;top:0;bottom:0;left:calc(50% + 6px);right:0;z-index:55;
+  display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:10px;
+  box-shadow:0 12px 40px rgba(0,0,0,.28);overflow:hidden}
+/* when a pane is maximised, book covers the full width */
+.tr-split.max-main .book-overlay,.tr-split.max-right .book-overlay{left:0}
+/* full-screen Match Book: cover the whole trading area */
+.book-overlay.full{left:0}
+.book-overlay .pane-head.bookhead{background:#ffe3cc;color:#5a3b22}
+.book-overlay .pane-head .x{cursor:pointer;font-weight:700}
+.book-overlay .pane-body{overflow:auto;padding:10px}
+#syEntries td.pos{color:#1565c0}
+#syEntries td.neg{color:#d81b60}
+table.sr-table tr{cursor:pointer}
+table.sr-table tbody tr.sel td{background:#cfe3f5}
+table.sr-table tbody tr.open td{font-weight:700}
+table.sr-table tbody tr.open td:first-child::after{content:" ●";color:#1aa64b}
+
+/* SESSION (runs) screen */
+.tr-pane.session .pane-head.sessionhead{background:#dfe9ee;color:#1f4e5f}
+.lay-from{font-weight:700;font-size:13px}
+.lay-from input{width:64px;margin-left:6px;padding:4px 6px}
+#trPaneSession .pane-body{display:flex;flex-direction:column;overflow:hidden;gap:8px}
+.sy-toolbar{flex-wrap:wrap;gap:7px;margin:0}
+.sy-grids{display:flex;gap:10px;flex:1 1 auto;min-height:0}
+.sy-ladder,.sy-entries{overflow:auto;border:1px solid var(--line);border-radius:8px}
+.sy-ladder{flex:0 0 46%}
+.sy-entries{flex:1 1 auto}
+#syLadder td.neg{color:#d81b60;font-weight:700}
+#syLadder td.pos{color:#1565c0;font-weight:700}
+#syEntries tr{cursor:pointer}
+#syEntries tr.sel td{background:#cfe3f5}
+#syEntries tr.tr-mod td{color:#1565c0;font-weight:600}
+#syEntries tr.tr-del td{color:#d81b60}
+#syEntryBar{position:static;left:auto;right:auto;bottom:auto;box-shadow:none;border-top:1px solid var(--line);padding:8px 0 0;margin-top:2px}
+#syEntryBar .eb-wrap{flex-wrap:nowrap;overflow:visible;gap:6px;align-items:center}
+#syEntryBar input,#syEntryBar select{margin:0;min-width:0}
+#syAmount,#syRate,#syRun{flex:1 1 52px;width:auto}
+#syMode{flex:1 1 48px;width:auto}
+#syParty{flex:2 1 68px;width:auto}
+#syPreview{flex:0 1 auto}
+#syEntryBar .btn{flex:0 0 auto}
+#syEntryBar.editing{background:#eaf2fb}
+#syPreview{font-weight:700;color:#1565c0;white-space:nowrap;padding:0 4px;font-size:12px}
+#syEntryBar input:disabled,#syEntryBar select:disabled,.sy-toolbar .btn:disabled{opacity:.5;cursor:not-allowed}
+/* Match Book table inside the pane */
+table.mbk{border-collapse:collapse;width:100%}
+table.mbk th,table.mbk td{border:1px solid #cfd8dc;padding:8px 12px;text-align:right;white-space:nowrap;font-weight:700}
+table.mbk th:first-child,table.mbk td:first-child{text-align:left}
+table.mbk thead th{background:#bcd7ea;color:#1f3a4d}
+table.mbk tr.total td{background:#eef4f6;border-top:2px solid var(--brand)}
+table.mbk .neg{color:#d81b60}
+@media (max-width:860px){
+  .tr-split{flex-direction:column}
+}
+
+.tr-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tr-table{width:100%}
+.tr-table tr{cursor:pointer}
+.tr-table tr.sel td{background:#cfe3f5 !important}        /* selected row */
+.tr-table tr.tr-mod td{color:#1565c0;font-weight:600}   /* modified = blue */
+.tr-table tr.tr-del td{color:#d81b60}                    /* deleted = only pink, no strike */
+.tr-table td.money{font-weight:600}
+.tr-table td.neg{color:#d81b60}
+/* Compact GT summary grid (its own small table above the entries) */
+.gt-grid{width:auto;min-width:280px;margin:0 0 12px;border:1px solid var(--line)}
+.gt-grid th,.gt-grid td{padding:8px 16px;border-bottom:1px solid var(--line);white-space:nowrap}
+.gt-grid thead th{background:#dfe9ee;color:#1f4e5f;font-weight:700}
+.gt-grid thead th:first-child,.gt-grid tbody td:first-child{text-align:left}
+.gt-grid tr.gt-row td{background:#eef4f6;font-weight:800;font-size:15px;color:#1565c0}
+.gt-grid tr.gt-row td.neg{color:#d81b60}
+#trEntryBar select{min-width:90px}
+
+/* Trading — compact entry bar on a SINGLE row (fields shrink to fit + Submit) */
+#trEntryBar .eb-wrap{flex-wrap:nowrap;overflow:visible;gap:6px;align-items:center}
+#trEntryBar input,#trEntryBar select{margin:0;min-width:0}
+#trQty,#trRate{flex:1 1 56px;width:auto}
+#trTeam,#trMode{flex:1 1 52px;width:auto}
+#trParty{flex:2 1 72px;width:auto}
+#trPreview{flex:0 1 auto}
+#trEntryBar .btn{flex:0 0 auto}
+/* no spinner arrows on Amount / Run number fields */
+.eb-wrap input[type=number]::-webkit-outer-spin-button,
+.eb-wrap input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.eb-wrap input[type=number]{-moz-appearance:textfield;appearance:textfield}
+#trEntryBar.editing{background:#eaf2fb}
+#trPreview{font-weight:700;color:#1565c0;white-space:nowrap;padding:0 4px}
+#seTeamBoxes label{display:block;margin:10px 0 4px}
+
+/* ===== old-app menu bar ===== */
+.brand-click{cursor:pointer}
+.menubar{display:flex;align-items:stretch;background:#eef2f4;border-bottom:1px solid #c5d2d8;padding:0 4px;font-size:14px;flex-wrap:wrap}
+.menubar .menu{position:relative}
+.menubar{font-size:13px}
+.menu-top{background:none;border:none;padding:4px 12px;font:inherit;color:#1f3a45;cursor:pointer;border-radius:0}
+.menu-top:hover,.menu.open .menu-top{background:#d6e3ea}
+.menu-getapp{color:#17384a;font-weight:700}
+.menu-getapp:hover{background:#ffd34d}
+.menu-drop{display:none;position:absolute;top:100%;left:0;min-width:210px;background:#fff;border:1px solid #b9c7cd;box-shadow:0 6px 18px rgba(0,0,0,.18);z-index:120;padding:4px 0}
+.menu.open .menu-drop{display:block}
+.menu-drop button{display:block;width:100%;text-align:left;background:none;border:none;padding:7px 16px;font:inherit;color:#243b44;cursor:pointer;white-space:nowrap}
+.menu-drop button:hover{background:#1f4e5f;color:#fff}
+.menu-sep{height:1px;background:#d7e0e4;margin:4px 0}
+
+/* ===== User Settings ===== */
+.us-card{display:flex;gap:18px;background:#fff;border:1px solid #cdd8dd;border-radius:0 0 8px 8px;padding:18px;flex-wrap:wrap}
+.us-left{min-width:300px}
+.us-row{display:flex;align-items:center;gap:14px;margin-bottom:12px;flex-wrap:wrap}
+.us-lbl{font-weight:800;color:#17384a;min-width:130px}
+.us-radio{display:inline-flex;align-items:center;gap:5px;color:#c0392b;font-weight:700;cursor:pointer}
+.us-input{padding:5px 8px;border:1px solid #9fb3bb;border-radius:4px;min-width:190px}
+.us-btns{display:flex;gap:10px;margin-top:8px;align-items:center}
+.us-right .us-hl{background:#fff34d;padding:8px 10px;border-radius:4px}
+
+/* ===== disclaimer footer (old app) ===== */
+.disclaimer-bar{position:fixed;left:0;right:0;bottom:0;background:#e8730c;color:#fff;font-size:12px;font-weight:700;text-align:center;padding:4px 8px;z-index:50}
+body{padding-bottom:26px}
+body.no-disclaimer{padding-bottom:0}
+/* non-dashboard screens: top header hidden too, so give the panes the extra height */
+body.no-disclaimer #trDetail{height:calc(100vh - 78px)}
+
+/* ===== Trading: compact chrome so the tables get maximum room ===== */
+#tradingView .wrap{padding:8px 10px 6px}
+.tr-pane .pane-head{padding:5px 10px;gap:6px}
+.tr-pane .pane-body{padding:7px}
+/* smaller toolbar buttons in both panes */
+.tr-pane .toolbar .btn,.sr-toolbar .btn,.sy-toolbar .btn{padding:5px 10px;font-size:13px;border-radius:6px}
+.tr-pane .toolbar{gap:5px;margin-top:0}
+/* tighter GT summary box above the trades */
+.gt-grid{margin:0 0 6px;min-width:0}
+.gt-grid th,.gt-grid td{padding:4px 12px}
+.gt-grid tr.gt-row td{font-size:14px}
+/* trim the pane-head session controls */
+.tr-pane .lay-from input{width:48px;padding:3px 5px}
+
+/* ===== mic button (voice bet entry) — clean outlined icon, no fill ===== */
+.mic-btn{flex:0 0 auto;width:38px;height:38px;border-radius:50%;border:1px solid #c2d0d6;background:#fff;
+  color:#1f4e5f;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}
+.mic-btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mic-btn:hover{background:#eef4f6;border-color:#1f4e5f}
+.mic-btn.rec{color:#c0392b;border-color:#c0392b;animation:pulse 1s infinite}
+
+/* ===== show ~10 rows: compact trade/session grids + a bit more height ===== */
+#trDetail{min-height:480px}
+.tr-table td,.tr-table th,table.sr-table td,table.sr-table th,
+#syLadder td,#syLadder th,#syEntries td,#syEntries th{padding:5px 10px}
+
+/* ===== voice bet entry (legacy, unused) ===== */
+.voicebar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:6px 8px;background:#eef6f2;border-bottom:1px solid #cfe3d8}
+.voice-lang{padding:4px 6px;border:1px solid #9fb3bb;border-radius:4px;font-size:13px}
+.voice-text{flex:1;min-width:170px;padding:5px 8px;border:1px solid #9fb3bb;border-radius:4px}
+.voice-heard{font-size:12px;color:#1f6f4a;max-width:100%}
+.voice-heard.err{color:#c0392b}
+.btn.sm{padding:5px 10px;font-size:13px}
+#trVoiceBtn.rec,#syVoiceBtn.rec{background:#c0392b;color:#fff;animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.6}}
+
+/* ===== Home Match GT box ===== */
+.home-gt{background:#fff;border:1px solid #cdd8dd;border-radius:10px;padding:12px 14px;margin:0 0 16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.hg-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.hg-title{font-weight:800;color:#1f4e5f;font-size:15px}
+.hg-select{flex:1;min-width:150px;padding:6px 8px;border:1px solid #9fb3bb;border-radius:6px;font-size:14px}
+.gt-mini{width:100%}
+.gt-mini th,.gt-mini td{padding:10px 12px;font-size:16px}
+.gt-mini .gt-row td{font-weight:800}
+
+/* Download-app link on the login card */
+.login-applink{display:block;text-align:center;margin-top:14px;color:#1f4e5f;font-weight:700;text-decoration:none;font-size:14px}
+.login-applink:hover{text-decoration:underline}
+
+/* ===== Agents & Partners book panel (match screen) ===== */
+.tr-top{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:8px}
+.tr-top .gt-wrap{flex:0 0 auto}
+.tr-books{flex:1 1 280px;min-width:250px;border:1px solid #dde6ea;border-radius:9px;overflow-x:auto;overflow-y:hidden;font-size:12.5px;background:#fff}
+.tr-books .bk-head{background:#eef4f6;color:#1F4E5F;font-weight:700;padding:6px 9px;display:flex;justify-content:space-between;align-items:center;font-size:12px}
+.tr-books .bk-back{cursor:pointer;color:#1F4E5F;font-weight:700}
+.tr-books .bk-back:hover{text-decoration:underline}
+.tr-books table{width:100%;border-collapse:collapse}
+.tr-books th,.tr-books td{padding:5px 8px;border-bottom:1px solid #eef2f4;text-align:right;white-space:nowrap}
+.tr-books th{background:#f6fafb;color:#64757c;font-size:11px;text-transform:uppercase;letter-spacing:.3px}
+.tr-books th.nm,.tr-books td.nm{text-align:left}
+.tr-books td.nm{font-weight:700;color:#17384a}
+.tr-books tr.clk{cursor:pointer}
+.tr-books tr.clk:hover{background:#f3f9fb}
+.tr-books td.neg{color:#c0392b;font-weight:700}
+.tr-books td.pos{color:#1565c0;font-weight:700}
+.tr-books .muted{color:#9aa8af;font-weight:400;font-size:11px}
+/* keep GT compact so the books panel fits beside it */
+.tr-top .gt-grid{min-width:0;margin:0}
+.tr-top .gt-grid th,.tr-top .gt-grid td{padding:6px 11px}
+.tr-top .tr-books{flex:1 1 230px;min-width:210px}
+/* Session commission indicator in the SESSION pane header */
+.sy-comm{font-size:12px;color:#137a4b;font-weight:600;margin-left:10px;white-space:nowrap}
+.sy-comm b{color:#0f5c39}
+.sy-comm-hint{color:#9a6a00;font-weight:400}
+/* Connect report: tick-box column + wider transactions (match the reference) */
+.cn-left{flex:1 1 340px}
+.cn-right{flex:1 1 460px}
+#cnMatches td:first-child, #cnSessions td:first-child,
+.cn-box table thead th:first-child{width:26px;text-align:center;padding-left:4px;padding-right:4px}
+.cn-box .cn-ck{width:16px;height:16px;cursor:pointer}
+#cnMatches tr, #cnSessions tr{cursor:default}
+/* Connect report — match the reference more closely */
+.cn-filters{flex-wrap:wrap;gap:8px 10px}
+.cn-filters input[type=date]{width:140px;flex:0 0 auto}
+.cn-filters span{color:#5a6b72}
+.cn-left{flex:1 1 320px;min-width:300px}
+.cn-right{flex:2 1 520px;min-width:340px}
+.cn-tx td{border-right:1px solid #eef2f4}
+.cn-tx td:nth-child(2),.cn-tx td:nth-child(4){border-right:2px solid #dde6ea}
+/* All-sessions report: "Declared" marker */
+.as-decl{color:#137a4b;font-weight:700}
+/* All-sessions report: inline entries panel on row click */
+.as-entries{margin-top:14px}
+.as-ent-h{background:#cfe0ec;color:#17384a;font-weight:800;padding:7px 12px;border-radius:6px;margin-bottom:6px}
+/* All-sessions entries: clickable rows + back link */
+.as-ent-row{cursor:pointer}
+.as-ent-row:hover{background:#eef4f6}
+.as-back{cursor:pointer;color:#1f4e5f;font-weight:700;text-decoration:underline}
+/* Find Sauda Entry — match the reference layout */
+.fs-top{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-bottom:12px}
+.fs-matches-col{flex:1 1 440px;min-width:330px}
+.fs-sel-col{flex:1 1 420px;min-width:330px;border:1px solid #c9d6dd;border-radius:8px;overflow:hidden}
+.fx-titlebar.green-bar{background:#1f7a33;color:#fff}
+.fs-sel-body{background:#eaf1fb;padding:12px}
+.fs-fieldset{border:1.5px solid #9fc0dd;border-radius:8px;padding:6px 12px 12px;margin:0 0 10px;background:#dde9f5}
+.fs-fieldset legend{font-weight:800;color:#9c288c;padding:0 6px;font-size:13px}
+.fs-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}
+.fs-grid label{display:flex;flex-direction:column;font-size:12px;font-weight:700;color:#17384a;gap:3px}
+.fs-grid input{background:#d9f0da;border:1px solid #aacfab;border-radius:5px;padding:5px 7px;font-size:14px}
+.fs-allsess{display:flex;align-items:center;gap:10px;margin:0 0 10px;font-weight:700;color:#17384a}
+.fs-allsess label{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.fs-allsess select{flex:1;padding:5px 7px;border:1px solid #aacfab;border-radius:5px;background:#fff}
+.fs-btns{display:flex;gap:12px;justify-content:center;margin-top:4px}
+.btn.fs-match{background:#1a3a8f;color:#fff}
+.btn.fs-session{background:#d63ab5;color:#fff}
+/* Find Sauda filter fields with radios */
+.fs-field{display:flex;align-items:center;gap:6px}
+.fs-field input[type=radio]{width:auto;flex:0 0 auto}
+.fs-field span{font-size:12px;font-weight:700;color:#17384a;white-space:nowrap;min-width:72px}
+.fs-field input:not([type=radio]){flex:1;min-width:0;background:#d9f0da;border:1px solid #aacfab;border-radius:5px;padding:5px 7px}
+/* Menu item keyboard-shortcut labels (right-aligned, like the old app) */
+.menu-drop button{display:flex;align-items:center;justify-content:space-between;gap:24px}
+.menu-sc{color:#8a97a0;font-size:12px;font-weight:600;white-space:nowrap}
+
+/* ===================================================================
+   Reference-app match: larger, BOLD, coloured numbers in data grids
+   (fonts / number size / bold numbers like the SHREE GAJANAN app)
+   =================================================================== */
+.mini td,.fx-table td,.sr-table td,.ledger td,.cn-tx td,.pr-grid td,.lv-table td{
+  font-size:14.5px;padding-top:9px;padding-bottom:9px}
+/* every numeric cell = bold, a touch bigger, tabular */
+.mini .num,.fx-table .num,.sr-table .num,.ledger .num,.cn-tx .num,.pr-grid .num,.lv-table .num,
+#syLadder .num,#syEntries .num,#trTable .num,#fsResults .num,#cnTx .num{
+  font-weight:800;font-size:15px}
+/* column headers: bold + dark (not faint) + a bit larger */
+.mini th,.fx-table th,.sr-table th,.ledger th,.cn-tx th,.pr-grid th{
+  color:#13323e;font-weight:800;font-size:12px}
+/* number colours — blue up, red down (reference look) */
+.num.pos,#fsResults .num.pos,#cnTx .num.pos{color:#174ea6}
+.num.neg,#fsResults .num.neg{color:#c62828}
+.num.bal-pos{color:#1a7a3c}
+.num.bal-neg{color:#c62828}
+/* party / name cells = bold dark */
+td.pname,.mini td.pname{font-weight:800;color:#13323e}
+/* session ladder NP + match money column = the big bold figures */
+#syLadder td.num{font-weight:800;font-size:15.5px;color:#174ea6}
+#syLadder td.neg{color:#c62828}
+#trTable td.money{font-weight:800}
+
+/* ===== MATCH screen — match the reference (magenta GT, bold coloured saudas) ===== */
+.gt-grid tr.gt-row td{color:#1565c0;font-size:16px;font-weight:800}   /* positive GT = blue */
+.gt-grid tr.gt-row td.neg{color:#d6008c}                              /* negative GT = magenta */
+.gt-grid thead th{color:#13323e;font-weight:800;font-size:13px}
+.gt-grid td:first-child,.gt-grid th:first-child{color:#13323e;font-weight:800}
+.gt-grid tr.gt-row td:first-child{color:#13323e}                      /* GT label stays dark */
+.tr-table td{font-size:14px}
+.tr-table td.num{font-weight:800;font-size:14.5px}
+.tr-table td.neg{color:#c62828}
+.tr-table td.money{color:#174ea6}
+.tr-table td.money.neg{color:#c62828}
+.tr-table td.pname{font-weight:800;color:#13323e}
+.tr-table th{color:#13323e;font-weight:800}
+
+/* ===== Negatives in the reference pink/magenta, everywhere ===== */
+td.neg,.num.neg,.neg,.bal-neg,.num.bal-neg{color:#d6008c !important}
+
+/* ===== Density pass: tighter rows so more data shows per screen (clean look kept) ===== */
+.mini td,.fx-table td,.sr-table td,.ledger td,.cn-tx td,.pr-grid td,.lv-table td,
+.tr-table td,#syLadder td,#syEntries td,#fsResults td,#cnTx td,#asBody td,#asEntries td{
+  padding-top:4px;padding-bottom:4px;line-height:1.3}
+.mini th,.fx-table th,.sr-table th,.ledger th,.cn-tx th,.pr-grid th,
+.tr-table th,#syLadder th,#syEntries th,#fsResults th,#asBody th{padding-top:6px;padding-bottom:6px}
+.gt-grid th,.gt-grid td{padding-top:5px;padding-bottom:5px}
+.tr-top{margin-bottom:6px}
+
+/* Session ladder: two run columns, divider between them */
+#syLadder td:nth-child(3),#syLadder th:nth-child(3){border-left:2px solid #dde6ea}
+
+/* ===== Day Report (Day Book) — matches the printed reference ===== */
+.dr-toolbar{display:flex;gap:8px;justify-content:flex-end;margin:6px 0 12px}
+.dr-sheet{max-width:820px;margin:0 auto;background:#fff;border:1px solid #111;
+  padding:0;font-family:Arial,Helvetica,sans-serif;color:#111}
+.dr-head{display:flex;justify-content:space-between;align-items:flex-start;
+  padding:10px 14px 12px;gap:16px}
+.dr-brand{font-style:italic;font-weight:800;font-size:17px;letter-spacing:.3px}
+.dr-for{font-size:13px;margin-top:3px}
+.dr-head-r{font-size:12.5px;line-height:1.55;text-align:left;white-space:nowrap}
+.dr-cols{display:flex;border-top:1px solid #111}
+.dr-table{width:50%;border-collapse:collapse;table-layout:fixed}
+.dr-table:first-child{border-right:1px solid #111}
+.dr-table th,.dr-table td{padding:5px 12px;font-size:13px;border-bottom:1px solid #d9d9d9}
+.dr-table thead th{border-bottom:1px solid #111;font-weight:700;text-align:left}
+.dr-table th.num,.dr-table td.num{text-align:right;font-variant-numeric:tabular-nums}
+.dr-table tbody td{color:#111}
+.dr-table tfoot td{border-top:1px solid #111;border-bottom:none;font-weight:700;padding-top:7px}
+.dr-table tfoot .dr-tot-lbl{text-align:right}
+.dr-empty{color:#888;text-align:center}
+
+/* ===== Logout / safe-close overlay ===== */
+.logout-overlay{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;
+  justify-content:center;background:rgba(14,30,36,.55);backdrop-filter:blur(2px);padding:20px}
+.logout-card{background:#fff;border-radius:16px;max-width:420px;width:100%;padding:28px 26px;
+  box-shadow:0 18px 50px rgba(0,0,0,.3);text-align:center}
+.logout-icon{font-size:34px;line-height:1;margin-bottom:8px}
+.logout-card h1{font-size:22px;margin:0 0 8px;color:#13323e}
+.logout-msg{color:#51636b;font-size:14px;line-height:1.5;margin:0 0 14px}
+.logout-status{min-height:20px;font-size:13px;color:#51636b;margin-bottom:14px;font-weight:600}
+.logout-status.ok{color:#1b8a4c}
+.logout-status.err{color:#d6008c}
+.logout-actions{display:flex;gap:10px;justify-content:center}
+.logout-actions .btn{min-width:120px}
+.logout-actions .btn:disabled{opacity:.6;cursor:default}
+/* Dashboard Logout card — stands out from the navy cards */
+.home-card.hc-logout{background:#fff4f6;border-color:#f2c6d4}
+.home-card.hc-logout .hc-t{color:#c01458}
+.home-card.hc-logout:hover{background:#ffe9ef}
+
+/* ===== Licence days-left badge (desktop app) ===== */
+.lic-badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;
+  font-weight:700;margin-right:10px;background:#e8f3ee;color:#1b8a4c;border:1px solid #bfe3cc;
+  white-space:nowrap}
+.lic-badge.warn{background:#fff6e5;color:#9a6b00;border-color:#f3dca0}
+.lic-badge.crit{background:#fdeaf1;color:#c01458;border-color:#f2c6d4}
+
+/* ===== Subscription-expired block ===== */
+.sub-overlay{position:fixed;inset:0;z-index:9500;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(160deg,#0e2630,#14404c);padding:20px}
+.sub-card{background:#fff;border-radius:16px;max-width:460px;width:100%;padding:34px 30px;text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.sub-icon{font-size:40px;margin-bottom:8px}
+.sub-card h1{font-size:24px;margin:0 0 10px;color:#c01458}
+.sub-msg{color:#51636b;font-size:14.5px;line-height:1.6;margin:0 0 20px}
+.sub-actions{display:flex;justify-content:center}
+
+/* Compact serial-number column in match/session entry tables */
+th.sr-col, td.sr-col{width:30px;min-width:28px;max-width:34px;white-space:nowrap;
+  text-align:left;padding-left:8px;padding-right:2px;color:#8a97a0;font-weight:600}
+
+/* Party-name field: red when the typed name isn't an added client. */
+#trParty.bad-party, #syParty.bad-party {
+  border-color: #e53935 !important;
+  background: #fff4f4;
+  color: #c62828;
+}
+
+/* Match + session ENTRY rows show values in plain black like the legacy app
+   (negatives keep their minus sign). The GT summary (#trGtTable) stays coloured. */
+#trTable tbody tr:not(.tr-del):not(.tr-mod) td.num,
+#syEntries tbody tr:not(.tr-del):not(.tr-mod) td.num {
+  color: #1a1a1a !important;
+}
+
+/* ===== Soft-gray theme (less white glare, easier on the eyes) ===== */
+:root{ --bg:#dce1e6; --card:#edf0f3; }
+thead th{ background:#e4e9ee; }
+.entrybar{ background:var(--card); }
+tbody tr:hover td{ background:#e3e9ef; }
+
+/* ===== Full saudas: bounded, horizontally-scrollable box with a visible slider ===== */
+#trMainTables > .tr-scroll:not(.gt-wrap){ max-height:46vh; overflow:auto; }
+.tr-split.max-main #trMainTables > .tr-scroll:not(.gt-wrap){ max-height:74vh; }
+#trMainTables > .tr-scroll:not(.gt-wrap) thead th{ position:sticky; top:0; z-index:2; }
+
+/* Make the horizontal/vertical scrollbars clearly visible on the entry tables */
+.tr-scroll{ scrollbar-width:auto; scrollbar-color:#8d9caa #d7dee4; }
+.tr-scroll::-webkit-scrollbar{ height:13px; width:11px; }
+.tr-scroll::-webkit-scrollbar-track{ background:#d7dee4; border-radius:7px; }
+.tr-scroll::-webkit-scrollbar-thumb{ background:#8d9caa; border-radius:7px; border:2px solid #d7dee4; }
+.tr-scroll::-webkit-scrollbar-thumb:hover{ background:#6f8090; }
+
+/* Book average chip in the match toolbar (after Exit) */
+.tr-avg{ display:inline-flex; align-items:center; margin-left:6px; padding:7px 13px; border-radius:8px;
+  background:#e7f1f4; border:1px solid #bcd7de; color:#13506a; font-weight:800; font-size:14px;
+  font-variant-numeric:tabular-nums; white-space:nowrap; }
+
+/* Withdraw to Capital modal + parked readout */
+.wd-tabs{ display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden }
+.wd-tab{ flex:1; padding:9px; font-weight:700; background:#e6eaef; color:var(--muted); border:0; cursor:pointer }
+.wd-tab.on{ background:#efe8fb; color:#6a3fb5; box-shadow:inset 0 -3px 0 #6a3fb5 }
+.wd-held{ margin:8px 0; padding:8px 12px; border-radius:8px; background:#efe8fb; border:1px solid #d6c7f0; color:#5b3fa0; font-size:13px; font-weight:600 }
+
+/* Remove the up/down spinner arrows on ALL number inputs, app-wide. */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+
+/* ===== Professional report tables (Day Client, Session Book) ===== */
+.rpt{border-collapse:collapse;width:100%;font-size:13.5px;margin:4px 0 10px}
+.rpt thead th{background:#1f4e5f;color:#fff;font-weight:800;text-align:left;padding:9px 12px;letter-spacing:.3px;border:1px solid #1f4e5f;white-space:nowrap}
+.rpt th.num,.rpt td.num{text-align:right;font-variant-numeric:tabular-nums}
+.rpt tbody td{padding:8px 12px;border:1px solid #dde4e8;font-weight:600;color:#16333f}
+.rpt tbody tr:nth-child(even){background:#f4f8fa}
+.rpt tbody tr.clk{cursor:pointer}
+.rpt tbody tr.clk:hover{background:#e0eef4}
+.rpt .neg{color:#c0392b;font-weight:800}
+.rpt .pos{color:#1f7a4d;font-weight:800}
+.rpt tfoot td{background:#e9f1f4;border:1px solid #1f4e5f;border-top:2px solid #1f4e5f;font-weight:900;color:#10303c;padding:9px 12px}
+.rpt-note{font-size:11.5px;color:#64757c;margin:4px 0 8px}
+.rpt-h{font-weight:800;font-size:16px;color:#12303c;margin:8px 0 6px}
+.rpt-sub{font-weight:800;font-size:12px;letter-spacing:.5px;color:#1f4e5f;text-transform:uppercase;margin:12px 0 4px;border-bottom:2px solid #cfe0ec;padding-bottom:3px}
+.rpt-dash{color:#9aa7ad;text-align:center;padding:10px}
+.rpt-empty{padding:22px;text-align:center;color:#8a97a0;font-weight:600}
+
+/* ===== Professional upgrade for the older report tables (Trial, Party, Settlement, Hawala, Type, Find Sauda) ===== */
+table.fx-table thead th{background:#1f4e5f;color:#fff;font-weight:800;border:1px solid #1f4e5f;padding:8px 11px;text-align:left;letter-spacing:.3px;text-transform:uppercase;font-size:11.5px}
+table.fx-table.green thead th{background:#1f7a4d;border-color:#1f7a4d;color:#fff}
+table.fx-table tbody td{border:1px solid #dde4e8}
+table.fx-table tbody tr:nth-child(even):not(.sel):not(.total-row):not(.total) td{background:#f5f9fb}
+table.fx-table tbody tr:hover:not(.total-row):not(.total) td{background:#e9f3f7}
+table.fx-table tfoot td,table.fx-table tr.total-row td,table.fx-table tr.total td{background:#e9f1f4;border-top:2px solid #1f4e5f;font-weight:900;color:#10303c}
+.lv-table th{background:#1f4e5f;font-weight:800;text-transform:uppercase;letter-spacing:.3px}
+
+/* ---- Match Book: tally tick + green reconciled saudas ---- */
+table.mbk th.mbk-tick,table.mbk td.mbk-tick{width:42px;text-align:center;padding:6px}
+table.mbk input.mbk-chk{width:18px;height:18px;cursor:pointer;accent-color:#22a33f;vertical-align:middle}
+.mbk-till{display:inline-block;font-size:11px;color:#0f7a2a;font-weight:800;margin-left:8px;white-space:nowrap}
+table.mbk tr.mbk-prow.mbk-ticked td{background:#eafaef}
+table.mbk.mbk-saudas tr.mbk-tallied td{background:#d9f6df}
+table.mbk.mbk-saudas tr.mbk-tallied td:first-child{box-shadow:inset 4px 0 0 #22a33f}

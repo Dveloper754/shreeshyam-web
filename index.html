@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#1f4e5f">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/styles.css">
+<title>Simple Accounting</title>
+</head>
+<body>
+
+<!-- Not-configured warning -->
+<div id="configWarning" class="config-warning" style="display:none">
+  <h2>⚙️ One step left</h2>
+  <p>Open <code>config.js</code> and paste your Supabase <b>Project URL</b> and
+     <b>anon public key</b>, then reload this page. See <code>SETUP_GUIDE.md</code>.</p>
+</div>
+
+<!-- Login -->
+<div id="loginView" class="login-view" style="display:none">
+  <form id="loginForm" class="login-card">
+    <h1 id="brandName">Simple Accounting</h1>
+    <p class="login-sub">Sign in to your books</p>
+    <label>Username</label>
+    <input id="loginUser" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+    <label>Password</label>
+    <input id="loginPassword" type="password" autocomplete="current-password" required>
+    <button class="btn primary full" type="submit">Sign in</button>
+    <a href="download.html" class="login-applink">📲 Get the mobile app</a>
+  </form>
+</div>
+
+<!-- Logout / close confirmation -->
+<div id="logoutView" class="logout-overlay" style="display:none">
+  <div class="logout-card">
+    <div class="logout-icon">🔒</div>
+    <h1 id="logoutTitle">Logout?</h1>
+    <p class="logout-msg" id="logoutMsg">A backup will be saved to this computer and to the cloud, then you'll be signed out.</p>
+    <div class="logout-status" id="logoutStatus"></div>
+    <div class="logout-actions">
+      <button class="btn ghost" id="logoutCancel">Cancel</button>
+      <button class="btn primary" id="logoutConfirm">Backup &amp; Logout</button>
+    </div>
+  </div>
+</div>
+
+<!-- Subscription expired block -->
+<div id="subExpiredView" class="sub-overlay" style="display:none">
+  <div class="sub-card">
+    <div class="sub-icon">⏳</div>
+    <h1>Subscription expired</h1>
+    <p class="sub-msg">Your access has ended. Please contact your provider to renew and continue using your books. Your data is safe and will be here when you renew.</p>
+    <div class="sub-actions"><button class="btn primary" id="subLogoutBtn">Logout</button></div>
+  </div>
+</div>
+
+<!-- App -->
+<div id="appView" style="display:none">
+  <header class="topbar">
+    <div class="brand"><button class="btn ghost sm" id="backBtn" style="display:none;margin-right:12px">← Back</button><span id="brandName2" class="brand-click" title="Home">Simple Accounting</span></div>
+    <div class="topbar-right">
+      <span id="licBadge" class="lic-badge" style="display:none"></span>
+      <span id="userEmail" class="user-email"></span>
+      <button class="btn ghost sm" id="logoutBtn">Logout</button>
+    </div>
+  </header>
+
+  <nav class="menubar" id="menubar">
+    <div class="menu">
+      <button class="menu-top">Configure</button>
+      <div class="menu-drop">
+        <button data-act="settings">Settings (Password &amp; Capital)</button>
+        <button data-act="usersettings">User Settings<span class="menu-sc">Ctrl+Alt+U</span></button>
+        <button data-act="backup">Backup<span class="menu-sc">Ctrl+Alt+B</span></button>
+        <div class="menu-sep"></div>
+        <button data-act="clearData">Clear Data / Keep CI Balance</button>
+        <button data-act="clearAll">Clear All Balance</button>
+        <button data-act="clearProg">Clear Programe</button>
+      </div>
+    </div>
+    <div class="menu">
+      <button class="menu-top">Create</button>
+      <div class="menu-drop">
+        <button data-act="newParty">New Party<span class="menu-sc">F1</span></button>
+        <button data-act="manageAgents">Agents</button>
+        <button data-act="managePartners">Partners</button>
+        <button data-act="partyReport">Party Report</button>
+        <button data-act="newMatch">New Match<span class="menu-sc">F2</span></button>
+      </div>
+    </div>
+    <div class="menu">
+      <button class="menu-top">Data Entry</button>
+      <div class="menu-drop">
+        <button data-act="matchReport">Match Report<span class="menu-sc">F3</span></button>
+        <button data-act="sessionReport">Session Report<span class="menu-sc">F4</span></button>
+        <button data-act="cupReport">Cup Report<span class="menu-sc">F5</span></button>
+        <button data-act="tossReport">Toss Reports<span class="menu-sc">Ctrl+F3</span></button>
+        <button data-act="settlementReport">Settlement Report<span class="menu-sc">F11</span></button>
+      </div>
+    </div>
+    <div class="menu">
+      <button class="menu-top">Report</button>
+      <div class="menu-drop">
+        <button data-act="dayReport">Day Report</button>
+        <button data-act="dayClient">Day Client Report</button>
+        <button data-act="matchClient">Full Match Report</button>
+        <button data-act="connect">Connecting<span class="menu-sc">F6</span></button>
+        <button data-act="trial">Final Trial Balance<span class="menu-sc">F12</span></button>
+        <button data-act="hawala">Hawala Report<span class="menu-sc">F9</span></button>
+        <button data-act="findSauda">Find Sauda Entry<span class="menu-sc">F8</span></button>
+      </div>
+    </div>
+    <div class="menu">
+      <button class="menu-top">Status</button>
+      <div class="menu-drop">
+        <button data-act="usersettings">User Settings<span class="menu-sc">Ctrl+Alt+U</span></button>
+        <button data-act="backup">Backup<span class="menu-sc">Ctrl+Alt+B</span></button>
+        <div class="menu-sep"></div>
+        <button data-act="newParty">New / Modify Party<span class="menu-sc">F1</span></button>
+        <button data-act="partyReport">Party List / Report<span class="menu-sc">F10</span></button>
+        <button data-act="newMatch">New Match<span class="menu-sc">F2</span></button>
+        <button data-act="matchReport">Match Report<span class="menu-sc">F3</span></button>
+        <button data-act="tossReport">Toss Report<span class="menu-sc">Ctrl+F3</span></button>
+        <button data-act="sessionReport">Session Report<span class="menu-sc">F4</span></button>
+        <button data-act="cupReport">Cup Report<span class="menu-sc">F5</span></button>
+        <button data-act="connect">Connecting<span class="menu-sc">F6</span></button>
+        <button data-act="backup">Backup Data<span class="menu-sc">F7</span></button>
+        <button data-act="findSauda">Find Sauda Entry<span class="menu-sc">F8</span></button>
+        <button data-act="hawala">Hawala Report<span class="menu-sc">F9</span></button>
+        <button data-act="settlementReport">Settlement Report<span class="menu-sc">F11</span></button>
+        <button data-act="dayReport">Day Report</button>
+        <button data-act="dayClient">Day Client Report</button>
+        <button data-act="matchClient">Full Match Report</button>
+        <button data-act="trial">Final Trial Balance<span class="menu-sc">F12</span></button>
+      </div>
+    </div>
+    <div class="menu"><button class="menu-top" data-act="importData">Import Data</button></div>
+    <div class="menu"><button class="menu-top" data-act="support">Support File</button></div>
+    <div class="menu"><button class="menu-top menu-getapp" data-act="getApp">📲 Get App</button></div>
+  </nav>
+
+  <!-- ===== USER SETTINGS ===== -->
+  <div id="usersettingsView" class="view" style="display:none">
+    <div class="wrap">
+      <div class="fx-titlebar">User Settings</div>
+      <div class="us-card">
+        <div class="us-left">
+          <div class="us-row"><span class="us-lbl">Decimal Format :</span>
+            <label class="us-radio"><input type="radio" name="usDecimal" value="2" checked> .00</label>
+            <label class="us-radio"><input type="radio" name="usDecimal" value="3"> .000</label>
+          </div>
+          <div class="us-row"><span class="us-lbl">Block Gadda :</span>
+            <label class="us-radio"><input type="radio" name="usBlockGadda" value="yes" checked> Yes</label>
+            <label class="us-radio"><input type="radio" name="usBlockGadda" value="no"> No</label>
+          </div>
+          <div class="us-row"><span class="us-lbl">Regular Format :</span>
+            <label class="us-radio"><input type="radio" name="usRegular" value="yes"> Yes</label>
+            <label class="us-radio"><input type="radio" name="usRegular" value="no" checked> No</label>
+          </div>
+          <div class="us-row us-hl"><span class="us-lbl">Two Mindi Hide :</span>
+            <label class="us-radio"><input type="radio" name="usTwoMindi" value="yes"> Yes</label>
+            <label class="us-radio"><input type="radio" name="usTwoMindi" value="no" checked> No</label>
+          </div>
+          <div class="us-row"><span class="us-lbl">Voice Language :</span>
+            <select id="usVoiceLang" class="us-input">
+              <option value="en-IN">Hinglish / English</option>
+              <option value="hi-IN">हिंदी (Hindi)</option>
+              <option value="mr-IN">मराठी (Marathi)</option>
+              <option value="kn-IN">ಕನ್ನಡ (Kannada)</option>
+              <option value="ta-IN">தமிழ் (Tamil)</option>
+              <option value="gu-IN">ગુજરાતી (Gujarati)</option>
+            </select></div>
+          <div class="us-row"><span class="us-lbl">Amount Unit :</span>
+            <select id="usAmountUnit" class="us-input">
+              <option value="1">1× — full rupees (1 peti = 100000)</option>
+              <option value="10">10× (1 peti = 10000)</option>
+              <option value="100" selected>100× — current (1 peti = 1000)</option>
+              <option value="1000">1000× (1 peti = 100)</option>
+            </select></div>
+          <div class="us-row"><span class="us-lbl">Client Credit Limit :</span>
+            <input id="usCreditLimit" type="number" step="1" min="0" class="us-input" placeholder="0 = off"></div>
+          <div class="us-row"><span class="us-lbl">Shortcut — Match entry :</span>
+            <input id="usScMatch" type="text" readonly class="us-input" placeholder="Click, then press keys" style="cursor:pointer">
+            <button type="button" class="btn ghost sm" id="usScMatchDef">Default</button></div>
+          <div class="us-row"><span class="us-lbl">Shortcut — Session entry :</span>
+            <input id="usScSession" type="text" readonly class="us-input" placeholder="Click, then press keys" style="cursor:pointer">
+            <button type="button" class="btn ghost sm" id="usScSessionDef">Default</button></div>
+          <div class="us-row"><span class="us-lbl">Capital Holder :</span>
+            <input id="usCapHolder" type="text" class="us-input"></div>
+          <div class="us-row"><span class="us-lbl">Password :</span>
+            <input id="usPassword" type="password" class="us-input" placeholder="leave blank to keep"></div>
+          <div class="us-btns">
+            <button class="btn ghost sm" id="usOneTime">OneTime</button>
+            <button class="btn ok" id="usSave">Save</button>
+            <button class="btn danger" id="usClose">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="disclaimer-bar">It is totally an Accounting software. It should not be misused for other reason. Risk should be bared by user for misusing it. Thanks!</div>
+
+  <!-- ===== HOME ===== -->
+  <div id="homeView" class="view">
+    <div class="wrap">
+      <div class="shyam-banner">
+        <svg class="feather" viewBox="0 0 80 160" aria-hidden="true">
+          <path d="M40 158 C40 120 38 92 40 62" stroke="#c9a227" stroke-width="2.5" fill="none"/>
+          <g stroke="#2e7d32" stroke-width="1.3" opacity=".65">
+            <path d="M40 72 L22 60"/><path d="M40 76 L20 70"/><path d="M40 80 L22 82"/>
+            <path d="M40 72 L58 60"/><path d="M40 76 L60 70"/><path d="M40 80 L58 82"/>
+          </g>
+          <ellipse cx="40" cy="52" rx="22" ry="30" fill="#1b8a6b"/>
+          <ellipse cx="40" cy="55" rx="15" ry="22" fill="#1565c0"/>
+          <path d="M25 55 a15 20 0 0 0 30 0 a15 11 0 0 1 -30 0" fill="#f4b400"/>
+          <ellipse cx="40" cy="59" rx="9" ry="15" fill="#3f2b96"/>
+          <ellipse cx="40" cy="61" rx="4.4" ry="9" fill="#0b1e5b"/>
+        </svg>
+        <div class="shyam-text">
+          <div class="shyam-hi">जय श्री श्याम</div>
+          <div class="shyam-sub">खाटू श्याम जी</div>
+          <div class="shyam-biz" id="homeBizName">Simple Accounting</div>
+        </div>
+        <svg class="feather flip" viewBox="0 0 80 160" aria-hidden="true">
+          <path d="M40 158 C40 120 38 92 40 62" stroke="#c9a227" stroke-width="2.5" fill="none"/>
+          <g stroke="#2e7d32" stroke-width="1.3" opacity=".65">
+            <path d="M40 72 L22 60"/><path d="M40 76 L20 70"/><path d="M40 80 L22 82"/>
+            <path d="M40 72 L58 60"/><path d="M40 76 L60 70"/><path d="M40 80 L58 82"/>
+          </g>
+          <ellipse cx="40" cy="52" rx="22" ry="30" fill="#1b8a6b"/>
+          <ellipse cx="40" cy="55" rx="15" ry="22" fill="#1565c0"/>
+          <path d="M25 55 a15 20 0 0 0 30 0 a15 11 0 0 1 -30 0" fill="#f4b400"/>
+          <ellipse cx="40" cy="59" rx="9" ry="15" fill="#3f2b96"/>
+          <ellipse cx="40" cy="61" rx="4.4" ry="9" fill="#0b1e5b"/>
+        </svg>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== SETTLING (entries) ===== -->
+  <div id="settlingView" class="view" style="display:none">
+    <div class="wrap">
+      <div class="party-bar">
+        <div class="party-pick">
+          <label>Party — type a name to open its ledger</label>
+          <div class="row">
+            <input id="partyInput" list="topPartyList" placeholder="Enter party name…" autocomplete="off">
+            <datalist id="topPartyList"></datalist>
+            <button class="btn sm" id="newPartyBtn">+ New</button>
+          </div>
+        </div>
+        <div class="closing">
+          <div class="closing-party" id="selectedPartyName">—</div>
+          <div class="closing-line">
+            <span id="closingLabel">Closing Balance</span>
+            <span id="closingValue" class="closing-value">₹0.00</span>
+          </div>
+          <div class="closing-sub" id="closingSub"></div>
+        </div>
+      </div>
+
+      <p id="emptyHint" class="empty-hint">Select a party above, or add an entry below to create one.</p>
+
+      <div id="reportArea" style="display:none">
+        <div class="toolbar">
+          <button class="btn ghost" id="btnOldRecord">Old Record</button>
+          <button class="btn ghost" id="btnPrint">Ledger</button>
+          <button class="btn ghost" id="btnMondayFinal">Monday Final</button>
+          <button class="btn primary" id="btnSetCapital" style="display:none">Set Opening Capital</button>
+          <button class="btn info" id="btnModify">Modify</button>
+          <button class="btn danger" id="btnDelete">Delete</button>
+          <button class="btn danger" id="btnExit">Exit</button>
+        </div>
+
+        <div id="opBalRow" style="display:flex;justify-content:space-between;align-items:center;background:#eef4f6;border-radius:8px;padding:8px 14px;margin-bottom:10px;font-weight:600">
+          <span>Opening Balance (OP BAL)</span>
+          <span id="openingBal">₹0.00</span>
+        </div>
+
+        <div class="split">
+          <div class="panel">
+            <div class="panel-title r" id="recvTitle"><span id="recvLabel">Dena</span> <span class="tot" id="recvTotal"></span></div>
+            <table class="mini"><thead><tr><th>Date</th><th>Party</th><th>Remark</th><th class="num">Amount</th></tr></thead>
+              <tbody id="recvBody"></tbody></table>
+          </div>
+          <div class="panel">
+            <div class="panel-title g" id="paidTitle"><span id="paidLabel">Lena</span> <span class="tot" id="paidTotal"></span></div>
+            <table class="mini"><thead><tr><th>Date</th><th>Party</th><th>Remark</th><th class="num">Amount</th></tr></thead>
+              <tbody id="paidBody"></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="entrybar">
+      <div class="eb-wrap">
+        <input id="entryParty" list="partyDatalist" placeholder="Party name" autocomplete="off">
+        <datalist id="partyDatalist"></datalist>
+        <input id="entryAmount" type="number" step="0.01" placeholder="Amount (− for paid)">
+        <input id="entryRemark" placeholder="Remark">
+        <input id="entryDate" type="date" title="Date">
+        <button class="btn primary" id="btnSubmit">OK</button>
+      </div>
+      <div class="eb-hint" id="ebHint">Open a party's ledger above, then enter the other party name and amount and press OK. Positive amount = received (lena); a negative amount (e.g. −2090) = paid (dena).</div>
+    </div>
+  </div>
+
+  <!-- ===== SETTLEMENT ===== -->
+  <div id="settlementView" class="view" style="display:none">
+    <div class="wrap">
+      <div class="trial-head">
+        <h2>Settlement Report</h2>
+        <span class="trial-actions">
+          <button class="btn primary sm" id="stMondayFinal">Monday Final (selected)</button>
+          <button class="btn ghost sm" id="stRefresh">Refresh</button>
+        </span>
+      </div>
+      <div class="settlement-bar">
+        <input id="stSearch" placeholder="Search customer…">
+        <button class="btn sm" id="stNewBtn">+ New</button>
+        <span class="st-summary" id="stSummary"></span>
+      </div>
+      <div class="panel">
+        <table class="mini settlement-table">
+          <thead><tr>
+            <th>Customer Name</th><th class="num">Balance</th><th>Monday Final</th>
+            <th class="sel-col"><input type="checkbox" id="stSelectAll" title="Select all"></th>
+          </tr></thead>
+          <tbody id="settlementBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TRIAL BALANCE ===== -->
+  <div id="trialView" class="view" style="display:none">
+    <div class="wrap">
+      <div class="trial-head">
+        <h2>Trial Balance</h2>
+        <span class="trial-actions">
+          <button class="btn ghost sm" id="btnTrialPdf">PDF</button>
+          <button class="btn ghost sm" id="btnTrialExcel">Excel</button>
+          <button class="btn ghost sm" id="btnTrialRefresh">Refresh</button>
+        </span>
+      </div>
+      <div class="split">
+        <div class="panel">
+          <div class="panel-title g">Cr <span class="tot" id="payTotal"></span></div>
+          <table class="mini"><thead><tr><th>Party</th><th class="num">Amount</th></tr></thead>
+            <tbody id="payBody"></tbody></table>
+        </div>
+        <div class="panel">
+          <div class="panel-title r">Dr <span class="tot" id="receiveTotal"></span></div>
+          <table class="mini"><thead><tr><th>Party</th><th class="num">Amount</th></tr></thead>
+            <tbody id="receiveBody"></tbody></table>
+        </div>
+      </div>
+      <p class="trial-net" id="trialNet"></p>
+    </div>
+  </div>
+
+  <!-- ===== DAY REPORT (Day Book — all parties) ===== -->
+  <div id="dayReportView" class="view" style="display:none">
+    <div class="wrap">
+      <div class="dr-toolbar">
+        <button class="btn ghost sm" id="drPdf">PDF</button>
+        <button class="btn ghost sm" id="drImg">Copy Image</button>
+        <button class="btn sm" id="drShare" style="background:#25d366;color:#fff;border-color:#25d366">Share on WhatsApp</button>
+        <button class="btn ghost sm" id="drRefresh">Refresh</button>
+        <button class="btn ghost sm" id="drExit">Exit</button>
+      </div>
+      <div class="dr-sheet" id="drSheet">
+        <div class="dr-head">
+          <div class="dr-head-l">
+            <div class="dr-brand" id="drBrand"></div>
+            <div class="dr-for" id="drFor"></div>
+          </div>
+          <div class="dr-head-r" id="drMeta"></div>
+        </div>
+        <div class="dr-cols">
+          <table class="dr-table">
+            <thead><tr><th>Party Name</th><th class="num">Dena</th></tr></thead>
+            <tbody id="drDenaBody"></tbody>
+            <tfoot><tr><td class="dr-tot-lbl">Total :</td><td class="num" id="drDenaTot"></td></tr></tfoot>
+          </table>
+          <table class="dr-table">
+            <thead><tr><th>Party Name</th><th class="num">Lena</th></tr></thead>
+            <tbody id="drLenaBody"></tbody>
+            <tfoot><tr><td class="dr-tot-lbl">Total :</td><td class="num" id="drLenaTot"></td></tr></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DAY CLIENT REPORT (per-client match + session P/L for a day) ===== -->
+  <div id="dayClientView" class="view" style="display:none">
+    <div class="wrap">
+      <div class="dr-toolbar" style="flex-wrap:wrap;align-items:center;gap:8px">
+        <label style="font-size:13px;color:#1f4e5f;font-weight:600">From <input type="date" id="dcrFrom" style="padding:4px 6px"></label>
+        <label style="font-size:13px;color:#1f4e5f;font-weight:600">To <input type="date" id="dcrTo" style="padding:4px 6px"></label>
+        <button class="btn primary sm" id="dcrShow">Show</button>
+        <button class="btn ghost sm" id="dcrImg">Copy Image</button>
+        <button class="btn sm" id="dcrShare" style="background:#25d366;color:#fff;border-color:#25d366">Share on WhatsApp</button>
+        <button class="btn ghost sm" id="dcrExit">Exit</button>
+      </div>
+      <div class="dr-sheet" id="dcrSheet" style="max-width:820px">
+        <div class="dr-head">
+          <div class="dr-head-l"><div class="dr-brand" id="dcrBrand"></div><div class="dr-for">Client-wise Report</div></div>
+          <div class="dr-head-r" id="dcrMeta"></div>
+        </div>
+        <div id="dcrBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FULL MATCH REPORT (pick a declared match → its client report) ===== -->
+  <div id="matchClientView" class="view" style="display:none">
+    <div class="wrap">
+      <div class="dr-toolbar" style="flex-wrap:wrap;align-items:center;gap:8px">
+        <label style="font-size:13px;color:#1f4e5f;font-weight:600">Match
+          <select id="mcrMatch" style="padding:4px 6px;max-width:420px"></select></label>
+        <button class="btn ghost sm" id="mcrImg">Copy Image</button>
+        <button class="btn sm" id="mcrShare" style="background:#25d366;color:#fff;border-color:#25d366">Share on WhatsApp</button>
+        <button class="btn ghost sm" id="mcrExit">Exit</button>
+      </div>
+      <div class="dr-sheet" id="mcrSheet" style="max-width:820px">
+        <div class="dr-head">
+          <div class="dr-head-l"><div class="dr-brand" id="mcrBrand"></div><div class="dr-for">Full Match Report</div></div>
+          <div class="dr-head-r" id="mcrMeta"></div>
+        </div>
+        <div id="mcrBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== REPORTS ===== -->
+  <div id="reportsView" class="view" style="display:none">
+    <div class="wrap">
+      <!-- Reports landing -->
+      <div id="reportsHome">
+        <h2 style="margin:4px 0 14px;color:#1f4e5f">Reports</h2>
+        <div class="rp-cards">
+          <button class="rp-card" id="rpHawala"><b>Hawala Report</b><span>Cash / hawala by date — Jama (plus) &amp; Nave (minus)</span></button>
+          <button class="rp-card" id="rpFind"><b>Find Sauda Entry</b><span>Search match &amp; session bets by party / rate / team / run</span></button>
+          <button class="rp-card" id="rpTrial"><b>Final Trial Balance</b><span>All party balances — Cr / Dr, with the &gt;9 filter</span></button>
+          <button class="rp-card" id="rpCup"><b>Cup Report</b><span>All CUP matches — result &amp; book profit/loss</span></button>
+          <button class="rp-card" id="rpToss"><b>Toss Report</b><span>All TOSS matches — result &amp; book profit/loss</span></button>
+          <button class="rp-card" id="rpSettle"><b>Settlement Report</b><span>Every match by type + party-wise net settlement</span></button>
+          <button class="rp-card" id="rpParty"><b>Party Report</b><span>One party's match bets, session bets &amp; ledger balance</span></button>
+          <button class="rp-card" id="rpDayClient"><b>Day Client Report</b><span>Per-client match &amp; session lena/dena for a day — tap a client for details</span></button>
+          <button class="rp-card" id="rpMatchReport"><b>Full Match Report</b><span>Pick any declared match → per-client P/L (clients, agents, capital)</span></button>
+        </div>
+      </div>
+
+      <!-- All Sessions report (every session across all matches) -->
+      <div id="allSessionsView" style="display:none">
+        <div class="fx-titlebar">Session Report</div>
+        <div class="fx-toolbar">
+          <button class="btn primary" id="asSelect">Select</button>
+          <button class="btn info" id="asDeclare">Declare</button>
+          <button class="btn warn" id="asUnDeclare">Un Declare</button>
+          <button class="btn danger" id="asDelete">Delete</button>
+          <button class="btn ghost" id="asRefresh">Refresh</button>
+          <span style="flex:1"></span>
+          <span id="asCount" class="muted"></span>
+          <button class="btn danger" id="asExit">Exit</button>
+        </div>
+        <div class="tr-scroll"><table class="mini fx-table"><thead><tr>
+          <th>Date</th><th>Match</th><th>Name</th><th class="num">Result</th>
+        </tr></thead><tbody id="asBody"></tbody></table></div>
+        <div id="asEntries" class="as-entries"></div>
+      </div>
+
+      <!-- Party Report (party master list) -->
+      <div id="partyReportView" style="display:none">
+        <div class="fx-titlebar">Party Report</div>
+        <div class="fx-toolbar">
+          <button class="btn info" id="prModify">Modify</button>
+          <button class="btn danger" id="prDelete">Delete</button>
+          <button class="btn primary" id="prNew">New Party</button>
+          <button class="btn ghost" id="prPrint">Print</button>
+          <button class="btn warn" id="prExit">Exit</button>
+          <input id="prSearch" placeholder="Search party…" style="margin-left:8px;min-width:200px">
+          <span style="flex:1"></span>
+          <span id="prCount" class="muted"></span>
+        </div>
+        <div class="tr-scroll"><table class="mini fx-table pr-grid"><thead><tr>
+          <th>Party Name</th><th>Dhara</th><th>Status</th>
+          <th class="num">Balance Limit</th><th class="num">Comm On_Match</th>
+          <th>Agent Name</th><th class="num">Agent %</th>
+          <th>Partner Name</th><th class="num">Partner %</th>
+        </tr></thead><tbody id="prBody"></tbody></table></div>
+      </div>
+
+      <!-- Type-wise Report (Cup / Toss / Settlement) -->
+      <div id="typeReportView" style="display:none">
+        <div class="fx-titlebar" id="tyTitle">Settlement Report</div>
+        <div class="fx-toolbar">
+          <label>Type
+            <select id="tyType">
+              <option value="">All</option>
+              <option value="CUP">CUP</option>
+              <option value="TOSS">TOSS</option>
+              <option value="TEST">TEST</option>
+              <option value="50-50">50-50</option>
+              <option value="40-40">40-40</option>
+              <option value="20-20">20-20</option>
+            </select>
+          </label>
+          <button class="btn primary" id="tyShow">Show</button>
+          <button class="btn ghost" id="tyPrint">Print</button>
+          <span style="flex:1"></span>
+          <button class="btn danger" id="tyExit">Exit</button>
+        </div>
+        <div class="fx-split">
+          <div class="fx-col">
+            <div class="fx-titlebar teal">MATCHES</div>
+            <div class="tr-scroll fx-box"><table class="mini fx-table green"><thead><tr>
+              <th>Sr</th><th>Date</th><th>Name</th><th>Type</th><th>Result</th><th class="num">Book P&amp;L</th>
+            </tr></thead><tbody id="tyMatches"></tbody>
+            <tfoot><tr><th colspan="5">TOTAL</th><th class="num" id="tyTotal">0</th></tr></tfoot></table></div>
+          </div>
+          <div class="fx-col">
+            <div class="fx-titlebar teal">PARTY-WISE SETTLEMENT</div>
+            <div class="tr-scroll fx-box"><table class="mini fx-table"><thead><tr>
+              <th>Party</th><th class="num">Net (+ owe us / − we owe)</th>
+            </tr></thead><tbody id="tyParties"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hawala Report -->
+      <div id="hawalaView2" style="display:none">
+        <div class="fx-titlebar">Hawala Report</div>
+        <div class="fx-toolbar">
+          <input type="date" id="hwDate">
+          <button class="btn primary" id="hwShow">Show</button>
+          <button class="btn ghost" id="hwPrint">Print</button>
+          <span style="flex:1"></span>
+          <button class="btn danger" id="hwExit">Exit</button>
+        </div>
+        <div class="tr-scroll"><table class="mini fx-table"><thead><tr>
+          <th>Sr.No</th><th>Date</th><th>Jama (+)</th><th class="num">Amount</th><th>Nave (−)</th><th>Remark</th>
+        </tr></thead><tbody id="hwBody"></tbody></table></div>
+      </div>
+
+      <!-- Find Sauda Entry -->
+      <div id="findSaudaView" style="display:none">
+        <div class="fs-top">
+          <div class="fs-matches-col">
+            <div class="fx-titlebar green-bar">ALL MATCHS</div>
+            <div class="tr-scroll fx-box"><table class="mini fx-table green"><thead><tr>
+              <th>ID_NO</th><th>DATE</th><th>Team_A</th><th>Team_B</th><th>TYPE</th><th>RESULT</th>
+            </tr></thead><tbody id="fsMatches"></tbody></table></div>
+          </div>
+          <div class="fs-sel-col">
+            <div class="fx-titlebar teal">SELECTION FOR MATCH / SESSIONS</div>
+            <div class="fs-sel-body">
+              <fieldset class="fs-fieldset"><legend>Fo Match</legend>
+                <div class="fs-grid">
+                  <div class="fs-field"><input type="radio" name="fsmField" value="name" checked><span>Name</span><input id="fsmParty"></div>
+                  <div class="fs-field"><input type="radio" name="fsmField" value="amount"><span>Amount</span><input id="fsmAmount" type="number"></div>
+                  <div class="fs-field"><input type="radio" name="fsmField" value="rate"><span>Bhav (Rate)</span><input id="fsmRate"></div>
+                  <div class="fs-field"><input type="radio" name="fsmField" value="team"><span>Team</span><input id="fsmTeam"></div>
+                </div>
+              </fieldset>
+              <div class="fs-allsess">
+                <label><input type="checkbox" id="fsAllSessions"> SELECT ALL SESSIONS</label>
+                <select id="fsSessionSelect"><option value="">— session —</option></select>
+              </div>
+              <fieldset class="fs-fieldset"><legend>Session</legend>
+                <div class="fs-grid">
+                  <div class="fs-field"><input type="radio" name="fssField" value="name" checked><span>Name</span><input id="fssParty"></div>
+                  <div class="fs-field"><input type="radio" name="fssField" value="amount"><span>Amount</span><input id="fssAmount" type="number"></div>
+                  <div class="fs-field"><input type="radio" name="fssField" value="rate"><span>Bhav (Rate)</span><input id="fssRate"></div>
+                  <div class="fs-field"><input type="radio" name="fssField" value="run"><span>Run</span><input id="fssRun" type="number"></div>
+                </div>
+              </fieldset>
+              <div class="fs-btns">
+                <button class="btn fs-match" id="fsMatchBtn">Match</button>
+                <button class="btn fs-session" id="fsSessionBtn">Session</button>
+                <button class="btn danger" id="fsExitBtn">Exit</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tr-scroll fx-results"><table class="mini fx-table"><thead id="fsResHead"><tr>
+          <th>Sr_No</th><th class="num">Amount</th><th class="num">Rate</th><th>Mode</th><th>Party Name</th><th>Match</th><th class="num">Team/Run</th>
+        </tr></thead><tbody id="fsResults"></tbody></table></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TRADING ===== -->
+  <div id="tradingView" class="view" style="display:none">
+    <div class="wrap">
+      <!-- LEVEL 1: Match Report (landing) -->
+      <div id="matchReport">
+        <div class="pane-head reporthead" style="border-radius:10px 10px 0 0"><span>Match Report</span></div>
+        <div class="report-box">
+          <div class="toolbar sr-toolbar">
+            <button class="btn ghost" id="mrSelectBtn">Select Match</button>
+            <button class="btn ghost" id="mrDeclareBtn">Declare</button>
+            <button class="btn ghost" id="mrUnDeclareBtn">Un Declare</button>
+            <button class="btn info" id="mrModifyBtn">Modify</button>
+            <button class="btn danger" id="mrDeleteBtn">Delete Match</button>
+            <button class="btn primary" id="mrNewBtn">New Match</button>
+            <button class="btn ok" id="mrConnectBtn">Connect Report</button>
+            <button class="btn ghost" id="mrExitBtn">Exit</button>
+          </div>
+          <div class="tr-scroll"><table class="mini sr-table"><thead><tr>
+            <th>Sr_No</th><th>Date</th><th>Team 1</th><th>Team 2</th><th>Type</th><th class="num">Result</th>
+          </tr></thead><tbody id="mrBody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- LEVEL 2/3: a match open (MATCH + Session Report / SESSION) -->
+      <div id="trDetail" style="display:none">
+        <div class="tr-split" id="trSplit">
+          <!-- MATCH (team betting) -->
+          <section class="tr-pane" id="trPaneMain">
+            <div class="pane-head">
+              <div class="toolbar" style="margin:0">
+                <button class="btn info" id="trModifyBtn">Modify</button>
+                <button class="btn warn" id="trRefreshBtn">Refresh</button>
+                <button class="btn danger" id="trDeleteBtn">Delete</button>
+                <button class="btn ghost" id="trPrintBtn">Print</button>
+                <button class="btn ok" id="trBookBtn">BOOK</button>
+                <button class="btn" id="trWithdrawBtn" style="background:#6a3fb5;color:#fff;border-color:#6a3fb5">WITHDRAW</button>
+                <button class="btn ghost" id="trExitBtn">Exit</button>
+                <span class="tr-avg" id="trAvg" title="Book average (settle-to-zero rate)">Avg —</span>
+              </div>
+              <button class="pane-max" data-pane="main" title="Full screen">⤢</button>
+            </div>
+            <div class="pane-body">
+              <div id="trMainTables">
+                <div class="tr-top">
+                  <div class="tr-scroll gt-wrap"><table class="mini gt-grid" id="trGtTable"></table></div>
+                  <div class="tr-books" id="trBooks"></div>
+                </div>
+                <div id="trWdHeld" class="wd-held" style="display:none"></div>
+                <div class="tr-scroll"><table class="mini tr-table" id="trTable"></table></div>
+              </div>
+              <!-- MATCH entry bar, pinned to the bottom of this pane -->
+              <div class="entrybar" id="trEntryBar">
+                <div class="eb-wrap">
+                  <button class="mic-btn" id="trMicBtn" type="button" title="Speak a bet" aria-label="Speak a bet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></button>
+                  <input id="trRate" type="text" inputmode="decimal" placeholder="Rate">
+                  <input id="trQty" type="number" step="0.01" placeholder="Amount">
+                  <select id="trMode"><option value="K">K</option><option value="L">L</option></select>
+                  <select id="trTeam"></select>
+                  <input id="trParty" placeholder="Party name">
+                  <button class="btn primary" id="trSubmit">Submit</button>
+                  <button class="btn ghost" id="trCancelEdit" type="button" style="display:none">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Right default: Session Report (sessions of this match) -->
+          <section class="tr-pane report" id="trPaneReport">
+            <div class="pane-head reporthead">
+              <span id="srTitle">Session Report</span>
+              <button class="pane-max" data-pane="right" title="Full screen">⤢</button>
+            </div>
+            <div class="pane-body">
+              <div class="toolbar sr-toolbar">
+                <button class="btn ghost" id="srSelectBtn">Select</button>
+                <button class="btn primary" id="srNewBtn">New</button>
+                <button class="btn ghost" id="srDeclareBtn">Declare</button>
+                <button class="btn ghost" id="srUnDeclareBtn">Un Declare</button>
+                <button class="btn info" id="srModifyBtn">Modify</button>
+                <button class="btn danger" id="srDeleteBtn">Delete</button>
+                <button class="btn" id="srBookBtn" style="background:#1f7a4d;color:#fff">Book</button>
+              </div>
+              <div class="tr-scroll"><table class="mini sr-table"><thead><tr>
+                <th>Date</th><th>Name</th><th class="num">Result</th>
+              </tr></thead><tbody id="srBody"></tbody></table></div>
+            </div>
+          </section>
+
+          <!-- Right alt: SESSION (runs) window -->
+          <section class="tr-pane session" id="trPaneSession" style="display:none">
+            <div class="pane-head sessionhead">
+              <span id="syTitle">SESSION</span>
+              <span id="syCommInfo" class="sy-comm"></span>
+              <span class="lay-from">lay From: <input id="syLayFrom" type="number" min="1" value="1"></span>
+              <span class="pane-btns">
+                <button class="btn ghost sm" id="syBackBtn">⟵ Sessions</button>
+                <button class="pane-max" data-pane="right" title="Full screen">⤢</button>
+              </span>
+            </div>
+            <div class="pane-body">
+              <div class="toolbar sy-toolbar">
+                <button class="btn info" id="syModifyBtn">Modify</button>
+                <button class="btn danger" id="syDeleteBtn">Delete</button>
+                <button class="btn warn" id="syRefreshBtn">Refresh</button>
+                <button class="btn ghost" id="syPrintBtn">Print</button>
+                <button class="btn ghost" id="syFullBtn">Full Screen</button>
+                <button class="btn danger" id="syExitBtn">Exit</button>
+              </div>
+              <div class="sy-grids">
+                <div class="tr-scroll sy-ladder"><table class="mini" id="syLadder"></table></div>
+                <div class="tr-scroll sy-entries"><table class="mini" id="syEntries"></table></div>
+              </div>
+              <div class="entrybar sy-entrybar" id="syEntryBar">
+                <div class="eb-wrap">
+                  <button class="mic-btn" id="syMicBtn" type="button" title="Speak a bet" aria-label="Speak a bet"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg></button>
+                  <input id="syRate" type="text" inputmode="decimal" placeholder="Rate" value="1">
+                  <input id="syAmount" type="number" step="0.01" placeholder="Amount">
+                  <input id="syRun" type="number" step="1" placeholder="Run">
+                  <input id="syClientRun" type="number" step="1" placeholder="Client run (tera)" title="Badla: the client's run" style="display:none">
+                  <select id="syMode"><option value="K">K</option><option value="L">L</option><option value="BD">BD</option></select>
+                  <input id="syParty" placeholder="Party name">
+                  <button class="btn primary" id="sySubmit">Submit</button>
+                  <button class="btn ghost" id="syCancelEdit" type="button" style="display:none">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Match Book — overlays the right (session) pane; closing it reveals the session again -->
+          <div class="book-overlay" id="trPaneBook" style="display:none">
+            <div class="pane-head bookhead">
+              <span>Match Book</span>
+              <span class="pane-btns">
+                <button class="pane-max" id="bookMax" title="Full screen">⤢</button>
+                <span class="x" id="bookClose" title="Close">✕</span>
+              </span>
+            </div>
+            <div class="pane-body">
+              <div class="bf-sub" id="fbSub"></div>
+              <div class="tr-scroll" id="fbBody"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connect Report (settlement / tally) -->
+      <div id="connectView" style="display:none">
+        <div class="pane-head reporthead" style="border-radius:10px 10px 0 0"><span>Connect Report</span></div>
+        <div class="report-box">
+          <div class="cn-filters">
+            <label><input type="checkbox" id="cnDate"> Date</label>
+            <label class="chip chip-match"><input type="checkbox" id="cnMatch" checked> Match</label>
+            <label class="chip chip-session"><input type="checkbox" id="cnSession" checked> Session</label>
+            <input type="date" id="cnFrom"> <span>To</span> <input type="date" id="cnTo">
+            <button class="btn ghost" id="cnPrintBtn">Print</button>
+            <button class="btn danger" id="cnExitBtn">Exit</button>
+          </div>
+          <div class="cn-grids">
+            <div class="cn-left">
+              <div class="cn-sub">Matches</div>
+              <div class="tr-scroll cn-box"><table class="mini sr-table"><thead><tr>
+                <th><input type="checkbox" id="cnAllMatches" checked title="Tick / untick all"></th><th>Sr.No</th><th>Date</th><th>Name</th><th>Type</th><th class="num">Result</th>
+              </tr></thead><tbody id="cnMatches"></tbody></table></div>
+              <div class="cn-sub">Sessions</div>
+              <div class="tr-scroll cn-box"><table class="mini sr-table"><thead><tr>
+                <th><input type="checkbox" id="cnAllSessions" checked title="Tick / untick all"></th><th>Sr.No</th><th>Date</th><th>Name</th><th class="num">Result</th>
+              </tr></thead><tbody id="cnSessions"></tbody></table></div>
+            </div>
+            <div class="cn-right">
+              <div class="cn-sub">Transactions</div>
+              <div class="tr-scroll cn-box tall"><table class="mini sr-table cn-tx"><thead><tr>
+                <th>Name</th><th class="num">Amount</th><th>Name</th><th class="num">Amount</th><th>Name</th><th class="num">Amount</th>
+              </tr></thead><tbody id="cnTx"></tbody></table></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== SETTINGS ===== -->
+  <div id="settingsView" class="view" style="display:none">
+    <div class="wrap settings-wrap">
+      <div class="panel">
+        <div class="panel-title">Change Password</div>
+        <div class="box-body">
+          <label>New password</label>
+          <input id="setPass1" type="password" autocomplete="new-password">
+          <label>Confirm new password</label>
+          <input id="setPass2" type="password" autocomplete="new-password">
+          <button class="btn primary" id="savePassBtn">Update password</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Capital Account Settings</div>
+        <div class="box-body">
+          <label>Capital account name</label>
+          <input id="setCapName" type="text" placeholder="Capital Account">
+          <p class="hint">The name shown for your own cash / capital account (e.g. your firm name or "Cash").</p>
+          <label>Opening balance (₹)</label>
+          <input id="setCapOpening" type="number" step="0.01" value="0">
+          <p class="hint">Your starting money on hand. Every Received adds to capital and every Paid subtracts, automatically.</p>
+          <button class="btn primary" id="saveCapBtn">Save capital settings</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Clients</div>
+        <div class="box-body">
+          <label>Search a client to edit</label>
+          <input id="clientSearch" list="clientDatalist" type="text" placeholder="Type a client name…" autocomplete="off">
+          <datalist id="clientDatalist"></datalist>
+          <div id="clientEdit" style="display:none;margin-top:12px">
+            <label>Name</label>
+            <input id="editClientName" type="text">
+            <label>Opening balance (₹)</label>
+            <input id="editClientOpening" type="number" step="0.01">
+            <div class="btn-row" style="margin-top:10px">
+              <button class="btn primary" id="saveClientBtn">Save changes</button>
+              <button class="btn danger" id="deleteClientBtn">Delete client</button>
+            </div>
+          </div>
+          <hr style="border:none;border-top:1px solid #e3e8ea;margin:16px 0">
+          <div class="row">
+            <div><label>New client name</label><input id="newClientName" type="text" placeholder="Name"></div>
+            <div><label>Opening balance (optional)</label><input id="newClientOpening" type="number" step="0.01" placeholder="0"></div>
+          </div>
+          <button class="btn primary" id="addClientBtn" style="margin-top:8px">Add client</button>
+          <p class="hint" style="margin-top:6px">Pick a client from the dropdown to rename it or change its opening balance. Deleting a client also removes its entries.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Backup &amp; Restore</div>
+        <div class="box-body">
+          <label class="switch">
+            <input type="checkbox" id="autoBackupChk">
+            <span>Auto-backup — save a cloud snapshot once a day</span>
+          </label>
+          <div class="btn-row">
+            <button class="btn primary" id="backupNowBtn">Backup now</button>
+            <button class="btn ghost" id="exportBtn">Export to file</button>
+            <button class="btn ghost" id="importBtn">Import from file</button>
+            <input type="file" id="importFile" accept="application/json,.json" style="display:none">
+          </div>
+          <p class="hint" style="margin-top:6px">Export downloads all your data as a file. Import restores from such a file (replaces current data).</p>
+          <div class="bk-list" id="backupList"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title r">Reset — cannot be undone</div>
+        <div class="box-body">
+          <button class="btn warn" id="entriesResetBtn">Entries Reset</button>
+          <p class="hint" style="margin:6px 0 16px">Deletes all entries but keeps every party with their current closing balance carried forward as opening. The Trial Balance stays the same.</p>
+          <button class="btn warn" id="resetKeepBtn">Reset — keep client names</button>
+          <p class="hint" style="margin:6px 0 16px">Deletes all entries and balances (everything goes to zero) but keeps every client name. Use it to start a fresh set of books with your existing clients.</p>
+          <button class="btn danger" id="fullResetBtn">Full Reset</button>
+          <p class="hint" style="margin:6px 0 0">Deletes all parties, entries, and capital and returns the app to blank. Your saved backups are kept, so you can still restore.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- New Party modal -->
+<div class="modal" id="newPartyModal">
+  <div class="box" style="max-width:1000px">
+    <div class="box-head"><span id="npTitle">New Party</span> <span class="x" data-close="newPartyModal">✕</span></div>
+    <div class="box-body">
+      <div class="np-grid">
+        <div class="np-sec">
+          <div class="np-sec-h">Party Information</div>
+          <label>Party Name<input id="npName"></label>
+          <label>Phone<input id="npPhone"></label>
+          <label>Dhara<select id="npDhara"><option value="NGP">NGP</option><option value="BMB">BMB</option><option value="OTHER">OTHER</option></select></label>
+          <label>Status<select id="npStatus"><option value="Regular">Regular</option><option value="Dummy">Dummy</option><option value="Booky">Booky</option></select></label>
+          <label>Opening balance (₹)<input id="npOpening" type="number" step="0.01" value="0"></label>
+          <label>Balance Limit (₹)<input id="incLimit" type="number" step="0.01"></label>
+          <label>Notes<input id="npNotes"></label>
+        </div>
+        <div class="np-sec">
+          <div class="np-sec-h">Self Share %</div>
+          <label>Match<input id="ssMatch" type="number" step="0.01"></label>
+          <label>Session<input id="ssSession" type="number" step="0.01"></label>
+          <label>Abandon<input id="ssAbandon" type="number" step="0.01"></label>
+          <label>Tie<input id="ssTie" type="number" step="0.01"></label>
+          <label>AKD<input id="ssAkd" type="number" step="0.01"></label>
+          <div class="np-sec-h" style="margin-top:10px">Incentive</div>
+          <label>Comm. on Match — type
+            <select id="incCommMatchType">
+              <option value="">(none)</option>
+              <option value="losing">Losing % (on net loss)</option>
+              <option value="turnover">Turnover (₹ per 1,000)</option>
+              <option value="lostbets">Lost bets % (on lost stakes)</option>
+            </select>
+          </label>
+          <label><span id="lblCommMatch">Client's match commission %</span><input id="incCommMatch" type="number" step="0.01"></label>
+          <label><span id="lblCommAgent">Agent's match commission %</span><input id="incCommAgent" type="number" step="0.01" placeholder="agent keeps this (same type)"></label>
+        </div>
+        <div class="np-sec">
+          <div class="np-sec-h">Agent</div>
+          <label>Agent for this client
+            <select id="agName"><option value="">— none —</option></select>
+          </label>
+          <div style="font-size:11.5px;color:#64757c;margin:2px 0 8px">One agent per client, chosen from your agents list. Add agents in <b>Create → Agents</b>.</div>
+          <label>Match %<input id="agMatch" type="number" step="0.01"></label>
+          <label>Session %<input id="agSession" type="number" step="0.01"></label>
+          <label>Abandon %<input id="agAbandon" type="number" step="0.01"></label>
+          <label>Tie %<input id="agTie" type="number" step="0.01"></label>
+          <label>AKD<input id="agAkd" type="number" step="0.01"></label>
+          <div style="font-size:11.5px;color:#64757c;margin-top:4px">Above = the agent's profit-share of this client's book. His own <b>commission</b> is set separately: match commission just above (Incentive), session commission below.</div>
+        </div>
+        <div class="np-sec">
+          <div class="np-sec-h">Partners</div>
+          <div style="font-size:12.5px;color:#64757c">Partners are <b>global</b> — they share in every client automatically, so there's nothing to set here per client.</div>
+          <div id="npPartnersInfo" style="font-size:12.5px;color:#17384a;margin-top:8px"></div>
+          <button type="button" class="btn ghost sm" id="npManagePartners" style="margin-top:10px">Manage partners</button>
+        </div>
+        <div class="np-sec">
+          <div class="np-sec-h">Commission on Session % (normal, rate 1.00)</div>
+          <label>Test<input id="csTest" type="number" step="0.01"></label>
+          <label>50-50<input id="cs5050" type="number" step="0.01"></label>
+          <label>40-40<input id="cs4040" type="number" step="0.01"></label>
+          <label>20-20<input id="cs2020" type="number" step="0.01"></label>
+          <div class="np-sec-h" style="margin-top:10px">Commission on Session % — 90/110 saudas</div>
+          <label>Test<input id="cs90Test" type="number" step="0.01" placeholder="blank = normal %"></label>
+          <label>50-50<input id="cs905050" type="number" step="0.01" placeholder="blank = normal %"></label>
+          <label>40-40<input id="cs904040" type="number" step="0.01" placeholder="blank = normal %"></label>
+          <label>20-20<input id="cs902020" type="number" step="0.01" placeholder="blank = normal %"></label>
+          <label class="np-chk"><input type="checkbox" id="csGalli"> Comm on Galli Gadda</label>
+        </div>
+        <div class="np-sec">
+          <div class="np-sec-h">Agent's session commission %</div>
+          <div style="font-size:11.5px;color:#64757c;margin:-2px 0 8px">Credited to this client's agent, on his % of the client's turnover (same basis as the client's session commission above).</div>
+          <label>Test<input id="csaTest" type="number" step="0.01"></label>
+          <label>50-50<input id="csa5050" type="number" step="0.01"></label>
+          <label>40-40<input id="csa4040" type="number" step="0.01"></label>
+          <label>20-20<input id="csa2020" type="number" step="0.01"></label>
+        </div>
+        <div class="np-sec">
+          <div class="np-sec-h">Agent's session commission % on 90/110</div>
+          <div style="font-size:11.5px;color:#64757c;margin:-2px 0 8px">Agent's cut on this client's 90/110 turnover. Leave blank or 0 = agent gets NO commission on 90/110 saudas (full 90/110 rebate stays with the client).</div>
+          <label>Test<input id="csa90Test" type="number" step="0.01" placeholder="0 = none"></label>
+          <label>50-50<input id="csa905050" type="number" step="0.01" placeholder="0 = none"></label>
+          <label>40-40<input id="csa904040" type="number" step="0.01" placeholder="0 = none"></label>
+          <label>20-20<input id="csa902020" type="number" step="0.01" placeholder="0 = none"></label>
+        </div>
+      </div>
+      <button class="btn primary full" id="savePartyBtn" style="margin-top:12px">Save Party</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Manage Agents ===== -->
+<div class="modal" id="agentsModal">
+  <div class="box" style="max-width:640px">
+    <div class="box-head"><span>Agents</span> <span class="x" data-close="agentsModal">✕</span></div>
+    <div class="box-body">
+      <p class="muted" style="margin:0 0 10px">Create an agent here first, then you can put clients under him on the New Party form. Give him a mobile login so he can watch only his own share.</p>
+      <div class="row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px">
+        <div style="flex:2;min-width:140px"><label style="display:block;font-size:12px;color:#64757c;font-weight:600;margin-bottom:3px">New agent name</label><input id="newAgentName" placeholder="e.g. HP"></div>
+        <div style="flex:2;min-width:140px"><label style="display:block;font-size:12px;color:#64757c;font-weight:600;margin-bottom:3px">App password (optional)</label><input id="newAgentPass" type="text" placeholder="for his mobile login"></div>
+        <button class="btn ok" id="addAgentBtn" style="flex:0 0 auto">Add agent</button>
+      </div>
+      <div class="msg" id="agentsMsg"></div>
+      <div id="agentsList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Manage Partners (global) ===== -->
+<div class="modal" id="partnersModal">
+  <div class="box" style="max-width:760px">
+    <div class="box-head"><span>Partners (global)</span> <span class="x" data-close="partnersModal">✕</span></div>
+    <div class="box-body">
+      <p class="muted" style="margin:0 0 10px">Every partner here takes their % share of <b>all</b> clients — automatically, at settlement and in the live book.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px">
+        <div style="flex:2;min-width:120px"><label style="display:block;font-size:12px;color:#64757c;font-weight:600;margin-bottom:3px">Name</label><input id="newPartnerName" placeholder="e.g. PT"></div>
+        <div style="flex:1;min-width:70px"><label style="display:block;font-size:12px;color:#64757c;font-weight:600;margin-bottom:3px">Match %</label><input id="newPartnerMatch" type="number" step="0.01"></div>
+        <div style="flex:1;min-width:70px"><label style="display:block;font-size:12px;color:#64757c;font-weight:600;margin-bottom:3px">Session %</label><input id="newPartnerSession" type="number" step="0.01"></div>
+        <div style="flex:1;min-width:70px"><label style="display:block;font-size:12px;color:#64757c;font-weight:600;margin-bottom:3px">Abandon %</label><input id="newPartnerAbandon" type="number" step="0.01"></div>
+        <div style="flex:1;min-width:70px"><label style="display:block;font-size:12px;color:#64757c;font-weight:600;margin-bottom:3px">Tie %</label><input id="newPartnerTie" type="number" step="0.01"></div>
+        <div style="flex:1;min-width:60px"><label style="display:block;font-size:12px;color:#64757c;font-weight:600;margin-bottom:3px">AKD</label><input id="newPartnerAkd" type="number" step="0.01"></div>
+        <button class="btn ok" id="addPartnerBtn" style="flex:0 0 auto">Add</button>
+      </div>
+      <div class="msg" id="partnersMsg"></div>
+      <div id="partnersList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modify modal -->
+<div class="modal" id="modifyModal">
+  <div class="box sm">
+    <div class="box-head">Modify Entry <span class="x" data-close="modifyModal">✕</span></div>
+    <div class="box-body">
+      <label>Amount (− for paid)</label>
+      <input id="mfAmount" type="number" step="0.01">
+      <p class="hint">Change the amount and it updates on both sides. <b>Clear the amount (leave it blank) and Save to delete this entry completely.</b></p>
+      <label>Date</label><input id="mfDate" type="date">
+      <label>Remark</label><input id="mfRemark">
+      <button class="btn primary full" id="saveModifyBtn">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Set Opening Capital modal -->
+<div class="modal" id="capitalModal">
+  <div class="box sm">
+    <div class="box-head">Set Opening Capital <span class="x" data-close="capitalModal">✕</span></div>
+    <div class="box-body">
+      <label>Opening capital (₹)</label>
+      <input id="capOpening" type="number" step="0.01" value="0">
+      <p class="hint">Your starting money on hand. Every Received adds to capital and every Paid subtracts, automatically.</p>
+      <button class="btn primary full" id="saveCapitalBtn">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Old Record modal -->
+<div class="modal" id="oldRecordModal">
+  <div class="box">
+    <div class="box-head"><span id="oldRecordTitle">Old Record</span> <span class="x" data-close="oldRecordModal">✕</span></div>
+    <div class="box-body" id="oldRecordBody"></div>
+  </div>
+</div>
+
+<!-- Ledger date-range dialog -->
+<div class="modal" id="ledgerRangeModal">
+  <div class="box sm">
+    <div class="box-head">Ledger — choose dates <span class="x" data-close="ledgerRangeModal">✕</span></div>
+    <div class="box-body">
+      <div class="row">
+        <div><label>From date</label><input id="lrFrom" type="date"></div>
+        <div><label>To date</label><input id="lrTo" type="date"></div>
+      </div>
+      <p class="hint">Leave both blank for all entries. Shows a printable ledger you can save as PDF.</p>
+      <button class="btn primary full" id="showLedgerBtn">Show Ledger</button>
+    </div>
+  </div>
+</div>
+
+<!-- Ledger view (in-app, printable) -->
+<div class="modal" id="ledgerViewModal">
+  <div class="box" style="max-width:900px">
+    <div class="box-head">
+      <span id="ledgerViewTitle">Ledger</span>
+      <span class="lv-actions">
+        <button class="btn primary sm" id="printLedgerBtn">🖨 Print / Save as PDF</button>
+        <span class="x" data-close="ledgerViewModal">✕</span>
+      </span>
+    </div>
+    <div class="box-body" id="ledgerViewBody"></div>
+  </div>
+</div>
+
+<!-- Confirmation dialog -->
+<div class="modal" id="confirmModal">
+  <div class="box sm">
+    <div class="box-head">Please confirm</div>
+    <div class="box-body">
+      <p id="confirmMsg" style="margin:0 0 16px"></p>
+      <div class="row">
+        <button class="btn ghost" id="confirmCancel">Cancel</button>
+        <button class="btn danger" id="confirmOk">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<!-- New / Edit MATCH modal -->
+<div class="modal" id="matchModal">
+  <div class="box" style="max-width:720px">
+    <div class="box-head"><span id="matchModalTitle">New Match</span> <span class="x" data-close="matchModal">✕</span></div>
+    <div class="box-body">
+      <div class="mm-top">
+        <div><label>Date</label><input id="mmDate" type="date"></div>
+        <div><label>Team 1</label><input id="mmTeam1" type="text" autocomplete="off" placeholder="e.g. ind"></div>
+        <div><label>Team 2</label><input id="mmTeam2" type="text" autocomplete="off" placeholder="e.g. aus"></div>
+        <div><label>Type</label>
+          <select id="mmType">
+            <option value="TEST">TEST</option><option value="50-50">50-50</option>
+            <option value="40-40">40-40</option><option value="20-20">20-20</option>
+            <option value="CUP">CUP</option><option value="TOSS">TOSS</option>
+          </select>
+        </div>
+      </div>
+      <div class="mm-horses-label">Teams / GT columns (auto-filled from Team 1 &amp; Team 2 — DRW is added only for TEST)</div>
+      <div class="mm-horses" id="mmHorses"></div>
+      <button class="btn primary full" id="saveMatchBtn" style="margin-top:12px">Save match</button>
+    </div>
+  </div>
+</div>
+
+<!-- Declare Session modal -->
+<div class="modal" id="declareModal">
+  <div class="box sm">
+    <div class="box-head"><span>Declare Session</span> <span class="x" data-close="declareModal">✕</span></div>
+    <div class="box-body">
+      <div style="text-align:center;font-weight:800;font-size:17px;background:#cfe0ec;color:#17384a;padding:8px;border-radius:8px;margin-bottom:14px" id="dcName">10</div>
+      <label>Runs</label>
+      <input id="dcRuns" type="number" step="1" placeholder="final runs">
+      <button class="btn primary full" id="saveDeclareBtn" style="margin-top:14px">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Declare Match modal -->
+<div class="modal" id="matchDeclareModal">
+  <div class="box sm">
+    <div class="box-head"><span>Declare Match</span> <span class="x" data-close="matchDeclareModal">✕</span></div>
+    <div class="box-body">
+      <div style="text-align:center;font-weight:800;font-size:16px;background:#cfe0ec;color:#17384a;padding:8px;border-radius:8px;margin-bottom:14px" id="mdcName"></div>
+      <label>Result (winning team, or Abandon / Tie)</label>
+      <select id="mdcResult"></select>
+      <button class="btn primary full" id="saveMatchDeclareBtn" style="margin-top:14px">Declare</button>
+    </div>
+  </div>
+</div>
+
+<!-- Withdraw to Capital modal (match) -->
+<div class="modal" id="withdrawModal">
+  <div class="box sm">
+    <div class="box-head"><span>Withdraw to Capital</span> <span class="x" data-close="withdrawModal">✕</span></div>
+    <div class="box-body">
+      <div class="wd-tabs">
+        <button class="wd-tab on" id="wdTabNow" type="button">Now</button>
+        <button class="wd-tab" id="wdTabAuto" type="button">Auto · every N entries</button>
+      </div>
+      <div id="wdPaneNow" style="margin-top:12px">
+        <label>Amount (from all teams)</label>
+        <input id="wdNowAmt" type="number" step="0.01" placeholder="Amount">
+        <button class="btn primary full" id="wdDoNow" style="margin-top:12px;background:#6a3fb5;border-color:#6a3fb5">Withdraw now</button>
+        <div class="muted" style="font-size:12px;margin-top:8px">Taken off every team and parked in Capital; returns to the winner at declaration.</div>
+      </div>
+      <div id="wdPaneAuto" style="display:none;margin-top:12px">
+        <label>Every how many entries?</label>
+        <input id="wdEveryN" type="number" step="1" value="5">
+        <label style="margin-top:8px">Withdraw amount</label>
+        <input id="wdAutoAmt" type="number" step="0.01" value="500">
+        <label class="us-radio" style="margin-top:10px"><input type="checkbox" id="wdAutoOn"> Auto-withdraw ON</label>
+        <button class="btn primary full" id="wdSaveAuto" style="margin-top:12px;background:#6a3fb5;border-color:#6a3fb5">Save rule</button>
+      </div>
+      <div id="wdList" class="wd-list" style="margin-top:14px"></div>
+      <button class="btn ghost full" id="wdClearAll" style="margin-top:10px">Clear all withdrawals (this match)</button>
+    </div>
+  </div>
+</div>
+
+<!-- New / Edit SESSION modal -->
+<div class="modal" id="sessionModal">
+  <div class="box sm">
+    <div class="box-head"><span id="sessionModalTitle">New Session</span> <span class="x" data-close="sessionModal">✕</span></div>
+    <div class="box-body">
+      <label>Session Name</label>
+      <input id="seName" type="text" autocomplete="off" placeholder="e.g. 10">
+      <label>Date</label>
+      <input id="seDate" type="date">
+      <label>Commission Type</label>
+      <select id="seComm">
+        <option value="">(none)</option>
+        <option value="TEST">TEST</option><option value="50-50">50-50</option>
+        <option value="40-40">40-40</option><option value="20-20">20-20</option>
+      </select>
+      <button class="btn primary full" id="saveSessionBtn" style="margin-top:12px">Save session</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Session Book (per-client P/L across this match's sessions) ===== -->
+<div class="modal" id="sessionBookModal">
+  <div class="box" style="max-width:720px">
+    <div class="box-head"><span id="sbTitle">Session Book</span> <span class="x" data-close="sessionBookModal">✕</span></div>
+    <div class="box-body"><div id="sbBody"></div></div>
+  </div>
+</div>
+
+<!-- Libraries, vendored locally (no external CDN needed) -->
+<script src="js/vendor/supabase.umd.js"></script>
+<script src="js/vendor/jspdf.umd.min.js"></script>
+<script src="js/vendor/jspdf.autotable.min.js"></script>
+<script src="js/vendor/fflate.min.js"></script>
+<script src="js/vendor/html2canvas.min.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

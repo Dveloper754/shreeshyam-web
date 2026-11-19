@@ -1,0 +1,9 @@
+# Always revalidate the app shell so "Update now" reliably loads the new version.
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+/config.js
+  Cache-Control: public, max-age=0, must-revalidate
+/js/app.js
+  Cache-Control: public, max-age=0, must-revalidate
+/css/styles.css
+  Cache-Control: public, max-age=0, must-revalidate
