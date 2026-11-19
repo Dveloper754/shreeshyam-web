@@ -757,3 +757,9 @@ table.mbk input.mbk-chk{width:18px;height:18px;cursor:pointer;accent-color:#22a3
 table.mbk tr.mbk-prow.mbk-ticked td{background:#eafaef}
 table.mbk.mbk-saudas tr.mbk-tallied td{background:#d9f6df}
 table.mbk.mbk-saudas tr.mbk-tallied td:first-child{box-shadow:inset 4px 0 0 #22a33f}
+/* Session run ladder compact: all runs fit, no scrollbar */
+.sy-ladder{overflow-x:auto;overflow-y:auto}
+#syLadder th{padding:2px 8px;font-size:11px}
+#syLadder td{padding:2px 8px;line-height:1.2}
+#syLadder td,#syLadder td b{font-size:14px}
+#syLadder td.num{font-size:14.5px;font-weight:800}
