@@ -3816,6 +3816,7 @@ function renderTrades() {
     const cls = t.deleted ? "tr-del" : (t.modified ? "tr-mod" : "");
     const sr = rows.length - i;
     const time = new Date(t.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
+    const date = ddmmyyyy((t.created_at || "").slice(0, 10));
     const colCells = vals.map((v, k) =>
       `<td class="num ${k === selIdx ? "money" : ""} ${v < 0 ? "neg" : ""}">${num2(v)}</td>`).join("");
     return `<tr data-id="${t.id}" class="${cls}">
@@ -3826,7 +3827,7 @@ function renderTrades() {
       <td>${t.mode}</td>
       <td class="pname">${esc(t.party_name) || "-"}</td>
       ${colCells}
-      <td>${time}</td></tr>`;
+      <td class="dt"><span class="d">${date}</span><span class="t">${time}</span></td></tr>`;
   }).join("");
 
   const colHead = cols.map((c) => `<th class="num">${esc(c)}</th>`).join("");
@@ -3860,7 +3861,7 @@ function renderTrades() {
   $("trTable").innerHTML = `
     <thead><tr>
       <th class="sr-col">Sr</th><th class="num">Amount</th><th class="num">Rate</th>
-      <th>Fovrt</th><th>Mode</th><th>Party Name</th>${colHead}<th>Time</th>
+      <th>Fovrt</th><th>Mode</th><th>Party</th>${colHead}<th>Date / Time</th>
     </tr></thead>
     <tbody>
       ${bodyRows || `<tr><td colspan="${span}" class="muted" style="text-align:center;padding:16px">No trades yet.</td></tr>`}
