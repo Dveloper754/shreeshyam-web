@@ -1,9 +1,11 @@
-# Always revalidate the app shell so "Update now" reliably loads the new version.
+# Always revalidate the app shell + every JS/CSS module so a new deploy loads
+# immediately (no stale cached module). Requires Cloudflare "Browser Cache TTL"
+# to be set to "Respect Existing Headers" so these max-age=0 values are honored.
 /index.html
   Cache-Control: public, max-age=0, must-revalidate
 /config.js
   Cache-Control: public, max-age=0, must-revalidate
-/js/app.js
+/js/*
   Cache-Control: public, max-age=0, must-revalidate
-/css/styles.css
+/css/*
   Cache-Control: public, max-age=0, must-revalidate
