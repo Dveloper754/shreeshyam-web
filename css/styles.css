@@ -711,7 +711,9 @@ tbody tr:hover td{ background:#e3e9ef; }
 /* Match saudas table: columns sized for lakh-range numbers so every value shows
    in full and the team columns read clearly, fitting the pane with no sideways
    sliding. A much bigger one-off number simply stretches its own column. */
-#trTable{ width:100%; font-size:12.5px; }
+/* No width:100% — let the table size to its content so it stays compact and the
+   team columns (Strikers/Renegades) + Time fit the pane without sideways sliding. */
+#trTable{ font-size:12.5px; }
 #trTable th, #trTable td{ white-space:nowrap; padding:6px 9px; }
 #trTable th:nth-child(1), #trTable td:nth-child(1){ width:34px; text-align:center; }   /* SR    */
 #trTable th:nth-child(2), #trTable td:nth-child(2){ min-width:92px; }    /* Amount */
