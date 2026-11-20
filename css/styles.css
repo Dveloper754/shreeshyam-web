@@ -697,16 +697,23 @@ thead th{ background:#e4e9ee; }
 tbody tr:hover td{ background:#e3e9ef; }
 
 /* ===== Full saudas: bounded, horizontally-scrollable box with a visible slider ===== */
-#trMainTables > .tr-scroll:not(.gt-wrap){ max-height:46vh; overflow:auto; }
+#trMainTables > .tr-scroll:not(.gt-wrap){ max-height:62vh; overflow:auto; }
 .tr-split.max-main #trMainTables > .tr-scroll:not(.gt-wrap){ max-height:74vh; }
 #trMainTables > .tr-scroll:not(.gt-wrap) thead th{ position:sticky; top:0; z-index:2; }
 
-/* Make the horizontal/vertical scrollbars clearly visible on the entry tables */
-.tr-scroll{ scrollbar-width:auto; scrollbar-color:#8d9caa #d7dee4; }
-.tr-scroll::-webkit-scrollbar{ height:13px; width:11px; }
-.tr-scroll::-webkit-scrollbar-track{ background:#d7dee4; border-radius:7px; }
-.tr-scroll::-webkit-scrollbar-thumb{ background:#8d9caa; border-radius:7px; border:2px solid #d7dee4; }
-.tr-scroll::-webkit-scrollbar-thumb:hover{ background:#6f8090; }
+/* Thin, subtle scrollbars (no bulky grey slider) on the entry tables */
+.tr-scroll{ scrollbar-width:thin; scrollbar-color:#cbd3da transparent; }
+.tr-scroll::-webkit-scrollbar{ height:7px; width:7px; }
+.tr-scroll::-webkit-scrollbar-track{ background:transparent; }
+.tr-scroll::-webkit-scrollbar-thumb{ background:#cbd3da; border-radius:6px; }
+.tr-scroll::-webkit-scrollbar-thumb:hover{ background:#aeb9c2; }
+
+/* Match saudas table: compact SR / Amount / Rate columns + tighter rows so more
+   trades are visible and the team columns fit without horizontal scrolling. */
+#trTable th:nth-child(1), #trTable td:nth-child(1){ width:30px; min-width:30px; text-align:center; padding-left:4px; padding-right:4px; }
+#trTable th:nth-child(2), #trTable td:nth-child(2){ width:74px; }
+#trTable th:nth-child(3), #trTable td:nth-child(3){ width:50px; }
+#trTable th, #trTable td{ padding-top:5px; padding-bottom:5px; }
 
 /* Book average chip in the match toolbar (after Exit) */
 .tr-avg{ display:inline-flex; align-items:center; margin-left:6px; padding:7px 13px; border-radius:8px;
