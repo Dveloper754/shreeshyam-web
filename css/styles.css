@@ -708,20 +708,20 @@ tbody tr:hover td{ background:#e3e9ef; }
 .tr-scroll::-webkit-scrollbar-thumb{ background:#cbd3da; border-radius:6px; }
 .tr-scroll::-webkit-scrollbar-thumb:hover{ background:#aeb9c2; }
 
-/* Match saudas table: FIXED, stable columns so entering a big sauda (up to
-   50 crore) never reshuffles them or pushes the team books off. SR / Rate are
-   slim; the team-book columns are wide enough for large signed numbers. */
-#trTable{ table-layout:fixed; width:100%; font-size:12px; }
-#trTable th, #trTable td{ padding:5px 7px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-#trTable th:nth-child(1), #trTable td:nth-child(1){ width:28px; text-align:center; padding-left:2px; padding-right:2px; }   /* SR   */
-#trTable th:nth-child(2), #trTable td:nth-child(2){ width:94px; }    /* Amount */
-#trTable th:nth-child(3), #trTable td:nth-child(3){ width:44px; }    /* Rate  */
-#trTable th:nth-child(4), #trTable td:nth-child(4){ width:58px; }    /* Fovrt */
-#trTable th:nth-child(5), #trTable td:nth-child(5){ width:40px; }    /* Mode  */
-#trTable th:nth-child(6), #trTable td:nth-child(6){ width:54px; }    /* Party */
+/* Match saudas table: columns sized for lakh-range numbers so every value shows
+   in full and the team columns read clearly, fitting the pane with no sideways
+   sliding. A much bigger one-off number simply stretches its own column. */
+#trTable{ width:100%; font-size:12.5px; }
+#trTable th, #trTable td{ white-space:nowrap; padding:6px 9px; }
+#trTable th:nth-child(1), #trTable td:nth-child(1){ width:34px; text-align:center; }   /* SR    */
+#trTable th:nth-child(2), #trTable td:nth-child(2){ min-width:92px; }    /* Amount */
+#trTable th:nth-child(3), #trTable td:nth-child(3){ min-width:52px; }    /* Rate   */
+#trTable th:nth-child(4), #trTable td:nth-child(4){ min-width:82px; }    /* Fovrt  */
+#trTable th:nth-child(5), #trTable td:nth-child(5){ min-width:52px; }    /* Mode   */
+#trTable th:nth-child(6), #trTable td:nth-child(6){ min-width:76px; }    /* Party  */
 #trTable th:nth-child(7), #trTable td:nth-child(7),
-#trTable th:nth-child(8), #trTable td:nth-child(8){ width:116px; }   /* team books (fit 50 crore) */
-#trTable th:nth-child(9), #trTable td:nth-child(9){ width:46px; }    /* Time  */
+#trTable th:nth-child(8), #trTable td:nth-child(8){ min-width:98px; }    /* team books */
+#trTable th:nth-child(9), #trTable td:nth-child(9){ min-width:58px; }    /* Time   */
 
 /* Book average chip in the match toolbar (after Exit) */
 .tr-avg{ display:inline-flex; align-items:center; margin-left:6px; padding:7px 13px; border-radius:8px;
@@ -795,23 +795,22 @@ table.fx-table tfoot td,table.fx-table tr.total-row td,table.fx-table tr.total t
   background:var(--rpt-total);border:0;border-top:2px solid var(--rpt-rule-strong);
   font-weight:800;color:#10262f}
 
-/* Settlement, Party ledger, Hawala/contra, Party report and the Day Book sheet
-   get the same ruled, slate-header financial look. */
-.settlement-table,.ledger,.cn-tx,.pr-grid,.dr-table{
+/* Settlement, Party ledger, Hawala/contra and Party report get the ruled,
+   slate-header financial look. (The Day Book keeps its own clean black-and-white
+   print style above — matches the printed Day Book reference.) */
+.settlement-table,.ledger,.cn-tx,.pr-grid{
   border-collapse:collapse;width:100%;background:#fff;border:1px solid var(--rpt-rule);
   border-radius:10px;overflow:hidden;box-shadow:0 1px 2px rgba(20,40,55,.05)}
-.settlement-table thead th,.ledger thead th,.cn-tx thead th,.pr-grid thead th,.dr-table thead th{
+.settlement-table thead th,.ledger thead th,.cn-tx thead th,.pr-grid thead th{
   background:var(--rpt-head);color:#eaf1f4;font-weight:700;border:0;
   padding:11px 13px;text-align:left;letter-spacing:.6px;text-transform:uppercase;font-size:11px}
-.settlement-table tbody td,.ledger tbody td,.cn-tx tbody td,.pr-grid tbody td,.dr-table tbody td{
+.settlement-table tbody td,.ledger tbody td,.cn-tx tbody td,.pr-grid tbody td{
   border:0;border-bottom:1px solid var(--rpt-rule);padding:10px 13px}
 .settlement-table tbody tr:nth-child(even) td,.ledger tbody tr:nth-child(even) td,
-.cn-tx tbody tr:nth-child(even) td,.pr-grid tbody tr:nth-child(even) td,
-.dr-table tbody tr:nth-child(even) td{background:var(--rpt-zebra)}
-.settlement-table tbody tr:hover td,.dr-table tbody tr:hover td{background:var(--rpt-hover)}
+.cn-tx tbody tr:nth-child(even) td,.pr-grid tbody tr:nth-child(even) td{background:var(--rpt-zebra)}
+.settlement-table tbody tr:hover td{background:var(--rpt-hover)}
 .settlement-table tr.total-row td,.ledger tr.total-row td,.cn-tx tr.total-row td,
-.pr-grid tr.total-row td,.dr-table tr.total-row td,
-.dr-table tfoot td{background:var(--rpt-total);border:0;
+.pr-grid tr.total-row td{background:var(--rpt-total);border:0;
   border-top:2px solid var(--rpt-rule-strong);font-weight:800;color:#10262f}
 
 /* ---- Match Book: tally tick + green reconciled saudas ---- */
