@@ -4,7 +4,8 @@
 let DP = 2;
 export function setDecimals(n) { DP = (Number(n) === 3) ? 3 : 2; }
 
-// Indian-number format, e.g. 1234567.5 -> "₹12,34,567.50". Negatives keep sign.
+// Indian-number format, e.g. 1234567.5 -> "12,34,567.50". Negatives keep sign.
+// No currency symbol anywhere in the app (removed by request).
 export function inr(amount) {
   const n = Number(amount) || 0;
   const sign = n < 0 ? "-" : "";
@@ -14,7 +15,7 @@ export function inr(amount) {
   const rest = w.slice(0, -3);
   if (rest) last3 = "," + last3;
   const grouped = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + last3;
-  return sign + "₹" + grouped + "." + f;
+  return sign + grouped + "." + f;
 }
 
 // Plain amount without the ₹ (for inputs / compact display).

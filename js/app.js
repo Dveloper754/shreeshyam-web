@@ -895,9 +895,9 @@ async function renderTrial() {
   // balance > 0  -> we received net from them -> we owe them -> TO PAY
   // balance < 0  -> we paid net to them       -> they owe us -> TO RECEIVE
   const pay = parties.filter((p) => p.balance > minAbs)
-    .sort((a, b) => starRank(a) - starRank(b) || b.balance - a.balance);
+    .sort((a, b) => starRank(a) - starRank(b) || a.name.localeCompare(b.name));
   const receive = parties.filter((p) => p.balance < -minAbs)
-    .sort((a, b) => starRank(a) - starRank(b) || a.balance - b.balance);
+    .sort((a, b) => starRank(a) - starRank(b) || a.name.localeCompare(b.name));
 
   const payTotal = pay.reduce((s, p) => s + p.balance, 0);          // positive
   const recTotal = receive.reduce((s, p) => s + p.balance, 0);      // negative (signed)
@@ -1765,7 +1765,7 @@ function openNewParty() {
 // Relabel them to match the selected type so the unit is never ambiguous.
 function updateMatchCommLabels() {
   const type = $("incCommMatchType") ? $("incCommMatchType").value : "";
-  const unit = type === "turnover" ? "(₹ per 1,000)" : "%";
+  const unit = type === "turnover" ? "(per 1,000)" : "%";
   if ($("lblCommMatch")) $("lblCommMatch").textContent = `Client's match commission ${unit}`;
   if ($("lblCommAgent")) $("lblCommAgent").textContent = `Agent's match commission ${unit}`;
 }
@@ -4666,7 +4666,7 @@ async function creditGate(kind, party, extraKey, extra) {
     const over = Math.round(-avail);
     const ok = await confirmAsk(`Limit over for ${party} — ${kind} credit short by ${inr(over)} (limit ${inr(c.limit)}). Increase the limit to add this entry?`, "Limit reached");
     if (!ok) return false;
-    const nv = prompt("New global credit limit (₹):", String(Math.round(c.limit) + over));
+    const nv = prompt("New global credit limit:", String(Math.round(c.limit) + over));
     if (nv == null) return false;
     const v = parseFloat(nv); if (!(v > 0)) return false;
     setCreditLimit(v);
@@ -5025,8 +5025,8 @@ function renderSession() {
   if ($("syCommInfo")) {
     const typeLabel = (state.runSession.commission_type || "").toUpperCase() || "no type";
     $("syCommInfo").innerHTML = comm > 0
-      ? `comm <b>${typeLabel}</b>: ₹${num2(comm)}`
-      : `comm <b>${typeLabel}</b>: ₹0 <span class="sy-comm-hint">— no active client has a ${typeLabel} session %</span>`;
+      ? `comm <b>${typeLabel}</b>: ${num2(comm)}`
+      : `comm <b>${typeLabel}</b>: 0 <span class="sy-comm-hint">— no active client has a ${typeLabel} session %</span>`;
   }
   // RUN / NP ladder (NP is NET of commission), laid out in TWO run columns so
   // twice as many runs show at once (no DM column).
