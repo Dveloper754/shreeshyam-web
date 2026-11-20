@@ -257,7 +257,7 @@
           <div class="closing-party" id="selectedPartyName">—</div>
           <div class="closing-line">
             <span id="closingLabel">Closing Balance</span>
-            <span id="closingValue" class="closing-value">₹0.00</span>
+            <span id="closingValue" class="closing-value">0.00</span>
           </div>
           <div class="closing-sub" id="closingSub"></div>
         </div>
@@ -278,7 +278,7 @@
 
         <div id="opBalRow" style="display:flex;justify-content:space-between;align-items:center;background:#eef4f6;border-radius:8px;padding:8px 14px;margin-bottom:10px;font-weight:600">
           <span>Opening Balance (OP BAL)</span>
-          <span id="openingBal">₹0.00</span>
+          <span id="openingBal">0.00</span>
         </div>
 
         <div class="split">
@@ -796,7 +796,7 @@
           <label>Capital account name</label>
           <input id="setCapName" type="text" placeholder="Capital Account">
           <p class="hint">The name shown for your own cash / capital account (e.g. your firm name or "Cash").</p>
-          <label>Opening balance (₹)</label>
+          <label>Opening balance</label>
           <input id="setCapOpening" type="number" step="0.01" value="0">
           <p class="hint">Your starting money on hand. Every Received adds to capital and every Paid subtracts, automatically.</p>
           <button class="btn primary" id="saveCapBtn">Save capital settings</button>
@@ -812,7 +812,7 @@
           <div id="clientEdit" style="display:none;margin-top:12px">
             <label>Name</label>
             <input id="editClientName" type="text">
-            <label>Opening balance (₹)</label>
+            <label>Opening balance</label>
             <input id="editClientOpening" type="number" step="0.01">
             <div class="btn-row" style="margin-top:10px">
               <button class="btn primary" id="saveClientBtn">Save changes</button>
@@ -874,8 +874,8 @@
           <label>Phone<input id="npPhone"></label>
           <label>Dhara<select id="npDhara"><option value="NGP">NGP</option><option value="BMB">BMB</option><option value="OTHER">OTHER</option></select></label>
           <label>Status<select id="npStatus"><option value="Regular">Regular</option><option value="Dummy">Dummy</option><option value="Booky">Booky</option></select></label>
-          <label>Opening balance (₹)<input id="npOpening" type="number" step="0.01" value="0"></label>
-          <label>Balance Limit (₹)<input id="incLimit" type="number" step="0.01"></label>
+          <label>Opening balance<input id="npOpening" type="number" step="0.01" value="0"></label>
+          <label>Balance Limit<input id="incLimit" type="number" step="0.01"></label>
           <label>Notes<input id="npNotes"></label>
         </div>
         <div class="np-sec">
@@ -890,7 +890,7 @@
             <select id="incCommMatchType">
               <option value="">(none)</option>
               <option value="losing">Losing % (on net loss)</option>
-              <option value="turnover">Turnover (₹ per 1,000)</option>
+              <option value="turnover">Turnover (per 1,000)</option>
               <option value="lostbets">Lost bets % (on lost stakes)</option>
             </select>
           </label>
@@ -1009,7 +1009,7 @@
   <div class="box sm">
     <div class="box-head">Set Opening Capital <span class="x" data-close="capitalModal">✕</span></div>
     <div class="box-body">
-      <label>Opening capital (₹)</label>
+      <label>Opening capital</label>
       <input id="capOpening" type="number" step="0.01" value="0">
       <p class="hint">Your starting money on hand. Every Received adds to capital and every Paid subtracts, automatically.</p>
       <button class="btn primary full" id="saveCapitalBtn">Save</button>
