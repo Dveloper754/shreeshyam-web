@@ -2,7 +2,7 @@
 import { isConfigured } from "./supabaseClient.js";
 import { currentSession, onAuthChange, signIn, signOut, changePassword, usernameToEmail } from "./auth.js";
 import * as api from "./api.js";
-import { inr, ddmmyyyy, todayISO, esc, balanceMeta, setDecimals } from "./format.js";
+import { inr, ddmmyyyy, todayISO, esc, balanceMeta, setDecimals } from "./format.js?v=26";
 import { ledgerHTML, downloadLedgerPDF, downloadTrialPDF, trialSplit, downloadDayBookPDF, deliverPdf } from "./print.js";
 import { sheetToXlsxBlob } from "./xlsx.js";
 import { BUSINESS_NAME, VOICE_AI, VOICE_CLOUD, SUPABASE_URL, SUPABASE_ANON_KEY, APP_VERSION } from "../config.js";

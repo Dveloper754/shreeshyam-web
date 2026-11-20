@@ -1,5 +1,5 @@
 // Builds the Ledger content shown inside the app, and generates PDF downloads.
-import { inr, ddmmyyyy, esc, todayISO } from "./format.js";
+import { inr, ddmmyyyy, esc, todayISO } from "./format.js?v=26";
 import { BUSINESS_NAME } from "../config.js";
 
 const noSymbol = (x) => inr(x).replace("₹", ""); // jsPDF's font has no ₹ glyph
