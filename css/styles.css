@@ -724,31 +724,80 @@ input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
 input[type=number] { -moz-appearance: textfield; appearance: textfield; }
 
-/* ===== Professional report tables (Day Client, Session Book) ===== */
-.rpt{border-collapse:collapse;width:100%;font-size:13.5px;margin:4px 0 10px}
-.rpt thead th{background:#1f4e5f;color:#fff;font-weight:800;text-align:left;padding:9px 12px;letter-spacing:.3px;border:1px solid #1f4e5f;white-space:nowrap}
+/* ===== Professional report tables =========================================
+   A clean financial-statement look: ruled rows (no busy cell grid), generous
+   padding, tabular figures, a restrained slate header and a clear total line. */
+:root{
+  --rpt-head:#223542;      /* deep slate header bar            */
+  --rpt-rule:#e6ebef;      /* hairline row separator           */
+  --rpt-rule-strong:#223542;
+  --rpt-zebra:#f8fafb;     /* barely-there zebra               */
+  --rpt-hover:#eef5f8;
+  --rpt-ink:#1c2b33;
+  --rpt-total:#eef3f5;
+  --rpt-pos:#15663a;
+  --rpt-neg:#b4322a;
+}
+.rpt{border-collapse:collapse;width:100%;font-size:13.5px;margin:6px 0 14px;
+  background:#fff;border:1px solid var(--rpt-rule);border-radius:10px;overflow:hidden;
+  box-shadow:0 1px 2px rgba(20,40,55,.05)}
+.rpt thead th{background:var(--rpt-head);color:#eaf1f4;font-weight:700;text-align:left;
+  padding:11px 14px;letter-spacing:.6px;text-transform:uppercase;font-size:11px;
+  border:0;white-space:nowrap}
 .rpt th.num,.rpt td.num{text-align:right;font-variant-numeric:tabular-nums}
-.rpt tbody td{padding:8px 12px;border:1px solid #dde4e8;font-weight:600;color:#16333f}
-.rpt tbody tr:nth-child(even){background:#f4f8fa}
+.rpt tbody td{padding:10px 14px;border:0;border-bottom:1px solid var(--rpt-rule);
+  font-weight:600;color:var(--rpt-ink)}
+.rpt tbody tr:nth-child(even) td{background:var(--rpt-zebra)}
 .rpt tbody tr.clk{cursor:pointer}
-.rpt tbody tr.clk:hover{background:#e0eef4}
-.rpt .neg{color:#c0392b;font-weight:800}
-.rpt .pos{color:#1f7a4d;font-weight:800}
-.rpt tfoot td{background:#e9f1f4;border:1px solid #1f4e5f;border-top:2px solid #1f4e5f;font-weight:900;color:#10303c;padding:9px 12px}
+.rpt tbody tr.clk:hover td{background:var(--rpt-hover)}
+.rpt tbody tr:last-child td{border-bottom:0}
+.rpt .neg{color:var(--rpt-neg);font-weight:800}
+.rpt .pos{color:var(--rpt-pos);font-weight:800}
+.rpt tfoot td{background:var(--rpt-total);border:0;border-top:2px solid var(--rpt-rule-strong);
+  font-weight:800;color:#10262f;padding:11px 14px}
 .rpt-note{font-size:11.5px;color:#64757c;margin:4px 0 8px}
-.rpt-h{font-weight:800;font-size:16px;color:#12303c;margin:8px 0 6px}
-.rpt-sub{font-weight:800;font-size:12px;letter-spacing:.5px;color:#1f4e5f;text-transform:uppercase;margin:12px 0 4px;border-bottom:2px solid #cfe0ec;padding-bottom:3px}
+.rpt-h{font-weight:800;font-size:17px;color:#12303c;margin:10px 0 2px;letter-spacing:.2px}
+.rpt-sub{font-weight:700;font-size:11.5px;letter-spacing:.7px;color:#3b5968;
+  text-transform:uppercase;margin:14px 0 5px;border-bottom:1.5px solid #e1e8ec;padding-bottom:4px}
 .rpt-dash{color:#9aa7ad;text-align:center;padding:10px}
-.rpt-empty{padding:22px;text-align:center;color:#8a97a0;font-weight:600}
+.rpt-empty{padding:26px;text-align:center;color:#8a97a0;font-weight:600}
 
-/* ===== Professional upgrade for the older report tables (Trial, Party, Settlement, Hawala, Type, Find Sauda) ===== */
-table.fx-table thead th{background:#1f4e5f;color:#fff;font-weight:800;border:1px solid #1f4e5f;padding:8px 11px;text-align:left;letter-spacing:.3px;text-transform:uppercase;font-size:11.5px}
-table.fx-table.green thead th{background:#1f7a4d;border-color:#1f7a4d;color:#fff}
-table.fx-table tbody td{border:1px solid #dde4e8}
-table.fx-table tbody tr:nth-child(even):not(.sel):not(.total-row):not(.total) td{background:#f5f9fb}
-table.fx-table tbody tr:hover:not(.total-row):not(.total) td{background:#e9f3f7}
-table.fx-table tfoot td,table.fx-table tr.total-row td,table.fx-table tr.total td{background:#e9f1f4;border-top:2px solid #1f4e5f;font-weight:900;color:#10303c}
-.lv-table th{background:#1f4e5f;font-weight:800;text-transform:uppercase;letter-spacing:.3px}
+/* ===== Same professional treatment for the older report tables
+   (Trial, Party, Settlement, Hawala, Type, Find Sauda, Level views) ===== */
+table.fx-table,.lv-table,.sr-table,.tr-table{border-collapse:collapse;width:100%;
+  background:#fff;border:1px solid var(--rpt-rule);border-radius:10px;overflow:hidden;
+  box-shadow:0 1px 2px rgba(20,40,55,.05)}
+table.fx-table thead th,.lv-table thead th,.sr-table thead th,.tr-table thead th{
+  background:var(--rpt-head);color:#eaf1f4;font-weight:700;border:0;
+  padding:11px 13px;text-align:left;letter-spacing:.6px;text-transform:uppercase;font-size:11px}
+table.fx-table.green thead th{background:#1b5e3c;color:#eaf4ec}
+table.fx-table tbody td,.lv-table tbody td,.sr-table tbody td,.tr-table tbody td{
+  border:0;border-bottom:1px solid var(--rpt-rule);padding:10px 13px}
+table.fx-table tbody tr:nth-child(even):not(.sel):not(.total-row):not(.total) td,
+.lv-table tbody tr:nth-child(even) td{background:var(--rpt-zebra)}
+table.fx-table tbody tr:hover:not(.total-row):not(.total) td{background:var(--rpt-hover)}
+table.fx-table tfoot td,table.fx-table tr.total-row td,table.fx-table tr.total td{
+  background:var(--rpt-total);border:0;border-top:2px solid var(--rpt-rule-strong);
+  font-weight:800;color:#10262f}
+
+/* Settlement, Party ledger, Hawala/contra, Party report and the Day Book sheet
+   get the same ruled, slate-header financial look. */
+.settlement-table,.ledger,.cn-tx,.pr-grid,.dr-table{
+  border-collapse:collapse;width:100%;background:#fff;border:1px solid var(--rpt-rule);
+  border-radius:10px;overflow:hidden;box-shadow:0 1px 2px rgba(20,40,55,.05)}
+.settlement-table thead th,.ledger thead th,.cn-tx thead th,.pr-grid thead th,.dr-table thead th{
+  background:var(--rpt-head);color:#eaf1f4;font-weight:700;border:0;
+  padding:11px 13px;text-align:left;letter-spacing:.6px;text-transform:uppercase;font-size:11px}
+.settlement-table tbody td,.ledger tbody td,.cn-tx tbody td,.pr-grid tbody td,.dr-table tbody td{
+  border:0;border-bottom:1px solid var(--rpt-rule);padding:10px 13px}
+.settlement-table tbody tr:nth-child(even) td,.ledger tbody tr:nth-child(even) td,
+.cn-tx tbody tr:nth-child(even) td,.pr-grid tbody tr:nth-child(even) td,
+.dr-table tbody tr:nth-child(even) td{background:var(--rpt-zebra)}
+.settlement-table tbody tr:hover td,.dr-table tbody tr:hover td{background:var(--rpt-hover)}
+.settlement-table tr.total-row td,.ledger tr.total-row td,.cn-tx tr.total-row td,
+.pr-grid tr.total-row td,.dr-table tr.total-row td,
+.dr-table tfoot td{background:var(--rpt-total);border:0;
+  border-top:2px solid var(--rpt-rule-strong);font-weight:800;color:#10262f}
 
 /* ---- Match Book: tally tick + green reconciled saudas ---- */
 table.mbk th.mbk-tick,table.mbk td.mbk-tick{width:42px;text-align:center;padding:6px}
@@ -757,7 +806,9 @@ table.mbk input.mbk-chk{width:18px;height:18px;cursor:pointer;accent-color:#22a3
 table.mbk tr.mbk-prow.mbk-ticked td{background:#eafaef}
 table.mbk.mbk-saudas tr.mbk-tallied td{background:#d9f6df}
 table.mbk.mbk-saudas tr.mbk-tallied td:first-child{box-shadow:inset 4px 0 0 #22a33f}
-/* Session run ladder compact: all runs fit, no scrollbar */
+
+/* Session run ladder — compact rows so all runs (10 below + 10 above) fit the
+   pane with NO vertical scrollbar. */
 .sy-ladder{overflow-x:auto;overflow-y:auto}
 #syLadder th{padding:2px 8px;font-size:11px}
 #syLadder td{padding:2px 8px;line-height:1.2}
