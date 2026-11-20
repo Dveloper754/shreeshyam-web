@@ -96,7 +96,12 @@ async function doUpdateNow(btn) {
   if (btn) { btn.disabled = true; btn.textContent = "Updating…"; }
   const base = (location.pathname.replace(/[^/]*$/, "")) || "/";
   const bust = { cache: "reload" };
-  const urls = [base, base + "config.js", base + "js/app.js", base + "css/styles.css", base + "index.html"];
+  const urls = [
+    base, base + "index.html", base + "config.js", base + "css/styles.css",
+    base + "js/app.js", base + "js/format.js", base + "js/print.js",
+    base + "js/api.js", base + "js/auth.js", base + "js/xlsx.js",
+    base + "js/supabaseClient.js",
+  ];
   try { await Promise.all(urls.map((u) => fetch(u, bust).catch(() => {}))); } catch (e) {}
   try { if (window.caches) { const ks = await caches.keys(); await Promise.all(ks.map((k) => caches.delete(k))); } } catch (e) {}
   location.reload();
