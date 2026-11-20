@@ -16,7 +16,7 @@ export const BUSINESS_NAME = "thedeveloper";
 // e.g. the date + a number). Apps that are already open compare their running value to
 // this one and, when it differs, show an "Update available" button — they never refresh
 // on their own, so an ongoing match is never disturbed. The user taps it when it's safe.
-export const APP_VERSION = "2026-11-20-32";
+export const APP_VERSION = "2026-11-20-33";
 
 // AI voice entry (optional, website only). When true, the browser listens and
 // sends what it heard to the "voice-parse" Edge Function, which uses Claude to
