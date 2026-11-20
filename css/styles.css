@@ -317,9 +317,9 @@ table.fx-table tbody tr.sel td{background:#1769c4;color:#fff}
 .report-box{padding:12px}
 .sr-toolbar{flex-wrap:wrap;gap:7px;margin:0 0 10px}
 /* Match Book overlay window */
-/* Match Book covers the right (session) pane; the session stays underneath and returns on close */
+/* Match Book covers exactly the right (session) pane — left edge tracks the 1.35:1 pane split so it never bleeds onto the match table; session stays underneath and returns on close */
 .tr-split{position:relative}
-.book-overlay{position:absolute;top:0;bottom:0;left:calc(50% + 6px);right:0;z-index:55;
+.book-overlay{position:absolute;top:0;bottom:0;left:calc((100% - 12px) * 1.35 / 2.35 + 12px);right:0;z-index:55;
   display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:10px;
   box-shadow:0 12px 40px rgba(0,0,0,.28);overflow:hidden}
 /* when a pane is maximised, book covers the full width */
