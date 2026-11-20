@@ -713,17 +713,18 @@ tbody tr:hover td{ background:#e3e9ef; }
    sliding. A much bigger one-off number simply stretches its own column. */
 /* No width:100% — let the table size to its content so it stays compact and the
    team columns (Strikers/Renegades) + Time fit the pane without sideways sliding. */
+#trPaneMain{ flex:1.6 1 0; }
 #trTable{ width:auto; font-size:12.5px; }
 #trTable th, #trTable td{ white-space:nowrap; padding:6px 9px; }
-#trTable th:nth-child(1), #trTable td:nth-child(1){ width:34px; text-align:center; }   /* SR    */
+#trTable th:nth-child(1), #trTable td:nth-child(1){ width:30px; text-align:center; }   /* SR    */
 #trTable th:nth-child(2), #trTable td:nth-child(2){ min-width:92px; }    /* Amount */
-#trTable th:nth-child(3), #trTable td:nth-child(3){ min-width:52px; }    /* Rate   */
-#trTable th:nth-child(4), #trTable td:nth-child(4){ min-width:82px; }    /* Fovrt  */
-#trTable th:nth-child(5), #trTable td:nth-child(5){ min-width:52px; }    /* Mode   */
-#trTable th:nth-child(6), #trTable td:nth-child(6){ min-width:76px; }    /* Party  */
+#trTable th:nth-child(3), #trTable td:nth-child(3){ min-width:46px; }    /* Rate   */
+#trTable th:nth-child(4), #trTable td:nth-child(4){ min-width:62px; }    /* Fovrt  */
+#trTable th:nth-child(5), #trTable td:nth-child(5){ min-width:40px; }    /* Mode   */
+#trTable th:nth-child(6), #trTable td:nth-child(6){ min-width:58px; }    /* Party  */
 #trTable th:nth-child(7), #trTable td:nth-child(7),
 #trTable th:nth-child(8), #trTable td:nth-child(8){ min-width:98px; }    /* team books */
-#trTable th:nth-child(9), #trTable td:nth-child(9){ min-width:58px; }    /* Time   */
+#trTable th:nth-child(9), #trTable td:nth-child(9){ min-width:50px; }    /* Time   */
 
 /* Book average chip in the match toolbar (after Exit) */
 .tr-avg{ display:inline-flex; align-items:center; margin-left:6px; padding:7px 13px; border-radius:8px;
