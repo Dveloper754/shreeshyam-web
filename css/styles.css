@@ -233,7 +233,8 @@ tr.del-row td:first-child{text-decoration:none}
 #trDetail{height:calc(100vh - 150px);min-height:320px}
 /* MATCH pane: tables scroll, entry bar pinned to this pane's bottom */
 #trPaneMain .pane-body{display:flex;flex-direction:column;overflow:hidden;gap:8px}
-#trMainTables{flex:1 1 auto;overflow:auto;min-height:0}
+#trMainTables{flex:1 1 auto;overflow:hidden;min-height:0;display:flex;flex-direction:column}
+#trMainTables > .tr-top{flex:0 0 auto}   /* team totals + agents stay fixed on top */
 #trEntryBar{position:static;left:auto;right:auto;bottom:auto;box-shadow:none;
   border-top:1px solid var(--line);padding:8px 0 0;margin-top:2px}
 .tr-split{display:flex;gap:12px;align-items:stretch;height:100%}
@@ -697,8 +698,7 @@ thead th{ background:#e4e9ee; }
 tbody tr:hover td{ background:#e3e9ef; }
 
 /* ===== Full saudas: bounded, horizontally-scrollable box with a visible slider ===== */
-#trMainTables > .tr-scroll:not(.gt-wrap){ max-height:72vh; overflow:auto; }
-.tr-split.max-main #trMainTables > .tr-scroll:not(.gt-wrap){ max-height:74vh; }
+#trMainTables > .tr-scroll:not(.gt-wrap){ flex:1 1 auto; min-height:0; overflow:auto; }
 #trMainTables > .tr-scroll:not(.gt-wrap) thead th{ position:sticky; top:0; z-index:2; }
 
 /* Thin, subtle scrollbars (no bulky grey slider) on the entry tables */
@@ -711,20 +711,26 @@ tbody tr:hover td{ background:#e3e9ef; }
 /* Match saudas table: columns sized for lakh-range numbers so every value shows
    in full and the team columns read clearly, fitting the pane with no sideways
    sliding. A much bigger one-off number simply stretches its own column. */
-/* No width:100% — let the table size to its content so it stays compact and the
-   team columns (Strikers/Renegades) + Time fit the pane without sideways sliding. */
-#trPaneMain{ flex:1.6 1 0; }
-#trTable{ width:auto; font-size:12.5px; }
-#trTable th, #trTable td{ white-space:nowrap; padding:6px 9px; }
+/* The match book is the primary data, so give its pane more width than the
+   secondary report/session panel; then the full-width saudas table fits. */
+#trPaneMain{ flex:1.35 1 0; }
+/* width:auto overrides the generic table{width:100%} / .tr-table{width:100%} rules
+   so the table sizes to its content and the team columns + Date/Time fit the pane. */
+#trTable{ width:auto; font-size:12px; }
+#trTable th, #trTable td{ white-space:nowrap; padding:5px 7px; }
 #trTable th:nth-child(1), #trTable td:nth-child(1){ width:30px; text-align:center; }   /* SR    */
 #trTable th:nth-child(2), #trTable td:nth-child(2){ min-width:92px; }    /* Amount */
-#trTable th:nth-child(3), #trTable td:nth-child(3){ min-width:46px; }    /* Rate   */
-#trTable th:nth-child(4), #trTable td:nth-child(4){ min-width:62px; }    /* Fovrt  */
-#trTable th:nth-child(5), #trTable td:nth-child(5){ min-width:40px; }    /* Mode   */
-#trTable th:nth-child(6), #trTable td:nth-child(6){ min-width:58px; }    /* Party  */
+#trTable th:nth-child(3), #trTable td:nth-child(3){ min-width:42px; }    /* Rate   */
+#trTable th:nth-child(4), #trTable td:nth-child(4){ min-width:52px; }    /* Fovrt  */
+#trTable th:nth-child(5), #trTable td:nth-child(5){ min-width:36px; }    /* Mode   */
+#trTable th:nth-child(6), #trTable td:nth-child(6){ min-width:52px; }    /* Party  */
 #trTable th:nth-child(7), #trTable td:nth-child(7),
 #trTable th:nth-child(8), #trTable td:nth-child(8){ min-width:98px; }    /* team books */
-#trTable th:nth-child(9), #trTable td:nth-child(9){ min-width:50px; }    /* Time   */
+#trTable th:nth-child(9), #trTable td:nth-child(9){ min-width:58px; }    /* Date / Time */
+/* Date-over-time cell in the saudas table: small grey date above the time. */
+#trTable td.dt{ line-height:1.1; padding-top:4px; padding-bottom:4px; }
+#trTable td.dt .d{ display:block; font-size:10px; color:#6b7a84; font-weight:600; }
+#trTable td.dt .t{ display:block; font-size:12px; font-weight:700; color:#13323e; }
 
 /* Book average chip in the match toolbar (after Exit) */
 .tr-avg{ display:inline-flex; align-items:center; margin-left:6px; padding:7px 13px; border-radius:8px;
