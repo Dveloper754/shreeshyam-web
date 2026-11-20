@@ -4932,9 +4932,9 @@ async function loadSessionBets() {
   if (!state.runSession) return;
   try { state.syBets = await fetchSessionBets(state.runSession.id); }
   catch (err) { return toast(err.message, true); }
-  // ladder centres on the last entered run: 10 runs below and 10 above it
+  // ladder centres on the last entered run: 12 runs below and 12 above it (25 total)
   const lr = lastEnteredRun();
-  if (lr > 0 && $("syLayFrom")) $("syLayFrom").value = Math.max(1, lr - 10);
+  if (lr > 0 && $("syLayFrom")) $("syLayFrom").value = Math.max(1, lr - 12);
   renderSession();
   const c = $("syLadder") && $("syLadder").parentElement; if (c) c.scrollTop = 0;
 }
@@ -5023,8 +5023,8 @@ function renderSession() {
   const bets = (state.syBets || []).filter((b) => !b.deleted);
   const layFrom = Math.max(1, parseInt($("syLayFrom").value, 10) || 1);
   const maxRun = (state.syBets || []).reduce((m, b) => Math.max(m, Number(b.run) || 0), layFrom);
-  // 21-row window (10 below + run + 10 above); still extend up to cover any higher sauda.
-  const end = Math.max(layFrom + 20, maxRun + 2);
+  // 25-row window (12 below + run + 12 above); still extend up to cover any higher sauda.
+  const end = Math.max(layFrom + 24, maxRun + 2);
   const comm = sessionCommTotal();   // house rebate — NP shown net of this
   // Show the commission being applied (and which type), so it's never a mystery.
   if ($("syCommInfo")) {
