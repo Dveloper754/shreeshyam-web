@@ -9,3 +9,11 @@
   Cache-Control: public, max-age=0, must-revalidate
 /css/*
   Cache-Control: public, max-age=0, must-revalidate
+# The mobile app reads this to decide whether to offer an update, and downloads
+# the APK — both must never be served stale.
+/download/app-version.json
+  Cache-Control: no-cache, no-store, must-revalidate
+/download/app-debug.apk
+  Cache-Control: no-cache, no-store, must-revalidate
+/walkie.html
+  Cache-Control: public, max-age=0, must-revalidate
