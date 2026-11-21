@@ -68,7 +68,7 @@ def main():
         print("reusing existing login:", email, "->", uid)
 
     # 2) wipe this owner's rows (children first) so re-runs are clean
-    for t in ("entries", "closings", "parties"):
+    for t in ("session_bets", "trading_entries", "match_sessions", "trading_sessions", "entries", "closings", "parties"):
         call("DELETE", "/rest/v1/%s?owner=eq.%s" % (t, uid), SR, None, "return=minimal")
     call("DELETE", "/rest/v1/settings?owner=eq.%s" % uid, SR, None, "return=minimal")
 
@@ -116,7 +116,15 @@ def main():
         st, bd = call("POST", "/rest/v1/entries", SR, ent, "return=minimal")
         print("entries:", st, "count=%d" % len(ent), bd[:200])
 
-    # 7) full access: profiles (subscription) + admins (online admin)
+    # 7) match / session tables (saudas) — present in newer COMPLETE backups;
+    # older backups won't have these keys, so they're simply skipped.
+    for t in ("trading_sessions", "match_sessions", "trading_entries", "session_bets"):
+        rows = [dict(r, owner=uid) for r in data.get(t, [])]
+        if rows:
+            st, bd = call("POST", "/rest/v1/%s" % t, SR, rows, "return=minimal")
+            print("%s:" % t, st, "count=%d" % len(rows), bd[:200])
+
+    # 8) full access: profiles (subscription) + admins (online admin)
     biz = (s.get("capital_name") or "thedeveloper")
     call("POST", "/rest/v1/profiles", SR,
          [{"owner": uid, "business_name": biz, "mobile_enabled": True,
