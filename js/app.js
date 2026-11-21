@@ -655,7 +655,11 @@ function wireStaticEvents() {
   // Badla (BD) mode: show the extra client-run box, hide Rate (no commission).
   if ($("syMode")) $("syMode").addEventListener("change", syncSyMode);
   // Book average follows the match team dropdown.
-  if ($("trTeam")) $("trTeam").addEventListener("change", updateBookAverage);
+  if ($("trTeam")) $("trTeam").addEventListener("change", () => {
+    // Remember the team chosen for THIS match so it survives session visits / re-opens.
+    if (state.trSession) { (state.trTeamSel = state.trTeamSel || {})[state.trSession.id] = $("trTeam").value; }
+    updateBookAverage();
+  });
   const sySeq = ["syRate", "syAmount", "syRun", "syMode", "syParty"];   // Rate first, then Amount
   sySeq.forEach((id, i) => {
     $(id).addEventListener("keydown", (e) => {
@@ -2265,6 +2269,10 @@ async function openMatch(id) {
   const teams = Array.isArray(m.teams) ? m.teams : [];
   const opts = teams.map((t) => `<option value="${esc(t)}">${esc(t)}</option>`).join("");
   $("trTeam").innerHTML = opts || `<option value="">(no teams)</option>`;
+  // Restore the team the user last chose for THIS match (survives session visits);
+  // a brand-new open falls back to the first team (the favourite).
+  const _teamSel = (state.trTeamSel && state.trTeamSel[id]) || "";
+  if (_teamSel && teams.includes(_teamSel)) $("trTeam").value = _teamSel;
   cancelEdit();
   cancelSessionEdit();
   applyPanes();
