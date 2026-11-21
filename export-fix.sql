@@ -1,9 +1,12 @@
 -- ============================================================================
--- Make the app's local backup+restore COMPLETE: include the match/session tables
--- (trading_sessions, match_sessions, trading_entries, session_bets) the old
--- functions left out. Both are security invoker, so RLS keeps each caller to
--- their own rows. After this runs, every logout backup file contains saudas,
--- and restoring such a file brings them back.
+-- Complete + correct backup/restore.
+--  export_data()  : backup now includes the match/session tables (saudas).
+--  restore_data() : (a) includes those tables, and (b) FORCES every inserted
+--                   row's owner to the caller (auth.uid()). Without (b), importing
+--                   a backup fails with "new row violates row-level security
+--                   policy for table parties", because the file's rows still carry
+--                   the original account's owner id.
+-- Both are security invoker, so RLS keeps each caller to their own rows.
 -- ============================================================================
 
 create or replace function public.export_data() returns jsonb
@@ -23,8 +26,9 @@ $$;
 
 create or replace function public.restore_data(p_data jsonb) returns void
 language plpgsql security invoker as $$
+declare me uuid := auth.uid();
 begin
-    -- wipe children first
+    -- wipe children first (RLS limits each delete to the caller's own rows)
     delete from public.session_bets     where true;
     delete from public.trading_entries  where true;
     delete from public.match_sessions   where true;
@@ -32,18 +36,34 @@ begin
     delete from public.entries  where true;
     delete from public.closings where true;
     delete from public.parties  where true;
-    -- re-insert parents first
-    insert into public.parties          select * from jsonb_populate_recordset(null::public.parties,          coalesce(p_data->'parties','[]'::jsonb));
-    insert into public.closings         select * from jsonb_populate_recordset(null::public.closings,         coalesce(p_data->'closings','[]'::jsonb));
-    insert into public.entries          select * from jsonb_populate_recordset(null::public.entries,          coalesce(p_data->'entries','[]'::jsonb));
-    insert into public.trading_sessions select * from jsonb_populate_recordset(null::public.trading_sessions, coalesce(p_data->'trading_sessions','[]'::jsonb));
-    insert into public.match_sessions   select * from jsonb_populate_recordset(null::public.match_sessions,   coalesce(p_data->'match_sessions','[]'::jsonb));
-    insert into public.trading_entries  select * from jsonb_populate_recordset(null::public.trading_entries,  coalesce(p_data->'trading_entries','[]'::jsonb));
-    insert into public.session_bets     select * from jsonb_populate_recordset(null::public.session_bets,     coalesce(p_data->'session_bets','[]'::jsonb));
+
+    -- re-insert parents first; force owner = me so the RLS check passes
+    insert into public.parties select * from jsonb_populate_recordset(null::public.parties,
+      (select coalesce(jsonb_agg(e || jsonb_build_object('owner', me)), '[]'::jsonb)
+       from jsonb_array_elements(coalesce(p_data->'parties','[]'::jsonb)) e));
+    insert into public.closings select * from jsonb_populate_recordset(null::public.closings,
+      (select coalesce(jsonb_agg(e || jsonb_build_object('owner', me)), '[]'::jsonb)
+       from jsonb_array_elements(coalesce(p_data->'closings','[]'::jsonb)) e));
+    insert into public.entries select * from jsonb_populate_recordset(null::public.entries,
+      (select coalesce(jsonb_agg(e || jsonb_build_object('owner', me)), '[]'::jsonb)
+       from jsonb_array_elements(coalesce(p_data->'entries','[]'::jsonb)) e));
+    insert into public.trading_sessions select * from jsonb_populate_recordset(null::public.trading_sessions,
+      (select coalesce(jsonb_agg(e || jsonb_build_object('owner', me)), '[]'::jsonb)
+       from jsonb_array_elements(coalesce(p_data->'trading_sessions','[]'::jsonb)) e));
+    insert into public.match_sessions select * from jsonb_populate_recordset(null::public.match_sessions,
+      (select coalesce(jsonb_agg(e || jsonb_build_object('owner', me)), '[]'::jsonb)
+       from jsonb_array_elements(coalesce(p_data->'match_sessions','[]'::jsonb)) e));
+    insert into public.trading_entries select * from jsonb_populate_recordset(null::public.trading_entries,
+      (select coalesce(jsonb_agg(e || jsonb_build_object('owner', me)), '[]'::jsonb)
+       from jsonb_array_elements(coalesce(p_data->'trading_entries','[]'::jsonb)) e));
+    insert into public.session_bets select * from jsonb_populate_recordset(null::public.session_bets,
+      (select coalesce(jsonb_agg(e || jsonb_build_object('owner', me)), '[]'::jsonb)
+       from jsonb_array_elements(coalesce(p_data->'session_bets','[]'::jsonb)) e));
+
     if p_data ? 'settings' and jsonb_typeof(p_data->'settings') = 'object' then
         update public.settings set
             opening_capital = coalesce((p_data->'settings'->>'opening_capital')::numeric, opening_capital),
             auto_backup     = coalesce((p_data->'settings'->>'auto_backup')::boolean, auto_backup)
-        where owner = auth.uid();
+        where owner = me;
     end if;
 end; $$;
