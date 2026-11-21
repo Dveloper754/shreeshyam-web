@@ -63,32 +63,60 @@ def main():
                 uid = u["id"]
         if not uid:
             print("FAILED to create or find user:", bd[:300]); sys.exit(1)
+        # make sure the password is set to what was given
         call("PUT", "/auth/v1/admin/users/" + uid, SR, {"password": password, "email_confirm": True})
         print("reusing existing login:", email, "->", uid)
 
+    # 2) wipe this owner's rows (children first) so re-runs are clean
     for t in ("entries", "closings", "parties"):
         call("DELETE", "/rest/v1/%s?owner=eq.%s" % (t, uid), SR, None, "return=minimal")
     call("DELETE", "/rest/v1/settings?owner=eq.%s" % uid, SR, None, "return=minimal")
 
+    import uuid as _uuid
+    # Give every row a FRESH id and remap foreign keys, so one owner's data can
+    # never collide with another's global primary keys (parties.id, entries.id).
+    pmap = {}
+    parties = []
+    for p in data.get("parties", []):
+        q = dict(p); old = q.get("id"); new = str(_uuid.uuid4())
+        if old is not None: pmap[old] = new
+        q["id"] = new; q["owner"] = uid
+        parties.append(q)
+
+    # 3) settings (one row)
     s = dict(data.get("settings") or {})
     s.pop("id", None); s["owner"] = uid
     st, bd = call("POST", "/rest/v1/settings", SR, [s], "return=minimal")
     print("settings:", st, bd[:160])
+    print("whose data (capital_name):", s.get("capital_name"))
 
-    parties = [dict(p, owner=uid) for p in data.get("parties", [])]
+    # 4) parties (fresh ids, owner forced to the new uid)
     st, bd = call("POST", "/rest/v1/parties", SR, parties, "return=minimal")
-    print("parties:", st, "count=%d" % len(parties), bd[:160])
+    print("parties:", st, "count=%d" % len(parties), bd[:200])
 
-    clo = [dict(c, owner=uid) for c in data.get("closings", [])]
+    # 5) closings (fresh id, remapped party_id)
+    clo = []
+    for c in data.get("closings", []):
+        q = dict(c); q["owner"] = uid
+        if q.get("id") is not None: q["id"] = str(_uuid.uuid4())
+        if q.get("party_id") in pmap: q["party_id"] = pmap[q["party_id"]]
+        clo.append(q)
     if clo:
         st, bd = call("POST", "/rest/v1/closings", SR, clo, "return=minimal")
-        print("closings:", st, "count=%d" % len(clo), bd[:160])
+        print("closings:", st, "count=%d" % len(clo), bd[:200])
 
-    ent = [dict(e, owner=uid) for e in data.get("entries", [])]
+    # 6) entries (fresh id, remapped party_id)
+    ent = []
+    for e in data.get("entries", []):
+        q = dict(e); q["owner"] = uid
+        if q.get("id") is not None: q["id"] = str(_uuid.uuid4())
+        if q.get("party_id") in pmap: q["party_id"] = pmap[q["party_id"]]
+        ent.append(q)
     if ent:
         st, bd = call("POST", "/rest/v1/entries", SR, ent, "return=minimal")
-        print("entries:", st, "count=%d" % len(ent), bd[:160])
+        print("entries:", st, "count=%d" % len(ent), bd[:200])
 
+    # 7) full access: profiles (subscription) + admins (online admin)
     biz = (s.get("capital_name") or "thedeveloper")
     call("POST", "/rest/v1/profiles", SR,
          [{"owner": uid, "business_name": biz, "mobile_enabled": True,
@@ -97,6 +125,7 @@ def main():
     call("POST", "/rest/v1/admins", SR, [{"uid": uid}],
          "resolution=merge-duplicates,return=minimal")
 
+    # 8) verify
     st, bd = call("GET", "/rest/v1/parties?select=count", SR, None, "count=exact")
     print("VERIFY parties in db:", bd[:120])
     print("================================================")
