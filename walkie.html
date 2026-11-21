@@ -64,10 +64,15 @@ const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 
 let channel=null, mediaStream=null, mr=null, seq=0, sid=null, talking=false;
 
+let lastMicErr = "";
 async function ensureMic(){
   if (mediaStream) return mediaStream;
-  try { mediaStream = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:true, noiseSuppression:true, autoGainControl:true } }); return mediaStream; }
-  catch(e){ return null; }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    lastMicErr = "no mic API — update “Android System WebView” in Play Store";
+    return null;
+  }
+  try { mediaStream = await navigator.mediaDevices.getUserMedia({ audio:true }); return mediaStream; }
+  catch(e){ lastMicErr = (e && e.name ? e.name : "error") + (e && e.message ? " — "+e.message : ""); return null; }
 }
 
 async function init(){
@@ -88,9 +93,8 @@ async function init(){
     else if (st === "CHANNEL_ERROR" || st === "TIMED_OUT"){ setStatus("Reconnecting…", "err"); }
   });
 
-  // pre-warm the mic so the first press has no delay; if it fails, we try again
-  // lazily on press (the button stays usable either way).
-  ensureMic();
+  // The mic is requested only when the button is pressed (a user gesture), which
+  // is the most reliable path in an Android WebView and a mobile browser.
 }
 
 function pickMime(){
@@ -104,7 +108,7 @@ async function startTalk(){
   talking = true;
   btn.classList.add("live"); setStatus("● LIVE — speaking", "live");
   const s = await ensureMic();
-  if (!s){ talking = false; btn.classList.remove("live"); setStatus("Microphone blocked — allow mic access.", "err"); return; }
+  if (!s){ talking = false; btn.classList.remove("live"); setStatus("Mic: " + lastMicErr, "err"); return; }
   if (!talking) { return; }   // released during the permission prompt
   seq = 0; sid = Date.now().toString(36)+Math.random().toString(36).slice(2,7);
   const mime = pickMime();
