@@ -64,25 +64,33 @@ const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 
 let channel=null, mediaStream=null, mr=null, seq=0, sid=null, talking=false;
 
+async function ensureMic(){
+  if (mediaStream) return mediaStream;
+  try { mediaStream = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:true, noiseSuppression:true, autoGainControl:true } }); return mediaStream; }
+  catch(e){ return null; }
+}
+
 async function init(){
+  // We only need the user id (to name the private channel). Broadcast itself works
+  // on the public anon key, so we do NOT auth realtime with the app token — a stale
+  // token would otherwise drop the connection and freeze the button.
   let token = hashParam("t");
   let uid   = hashParam("uid");
-  if (token) { client.realtime.setAuth(token); if(!uid) uid = uidFromJwt(token); }
+  if (token && !uid) uid = uidFromJwt(token);
   if (!uid) {
-    // running inside a logged-in browser instead of the app
-    try { const { data } = await client.auth.getSession(); if (data.session){ uid = data.session.user.id; client.realtime.setAuth(data.session.access_token); } } catch(e){}
+    try { const { data } = await client.auth.getSession(); if (data.session){ uid = data.session.user.id; } } catch(e){}
   }
   if (!uid){ setStatus("Not signed in — open this from the app.", "err"); return; }
 
   channel = client.channel("walkie:"+uid, { config:{ broadcast:{ self:false, ack:false } } });
   channel.subscribe((st)=>{
     if (st === "SUBSCRIBED"){ btn.disabled=false; setStatus("Ready — hold to talk"); }
-    else if (st === "CHANNEL_ERROR" || st === "TIMED_OUT"){ setStatus("Connection problem — retrying…", "err"); }
+    else if (st === "CHANNEL_ERROR" || st === "TIMED_OUT"){ setStatus("Reconnecting…", "err"); }
   });
 
-  // pre-warm the mic so the first press has no delay (and surfaces permission early)
-  try { mediaStream = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:true, noiseSuppression:true, autoGainControl:true } }); }
-  catch(e){ setStatus("Microphone blocked — allow mic access.", "err"); btn.disabled=true; }
+  // pre-warm the mic so the first press has no delay; if it fails, we try again
+  // lazily on press (the button stays usable either way).
+  ensureMic();
 }
 
 function pickMime(){
@@ -92,12 +100,16 @@ function pickMime(){
 }
 
 async function startTalk(){
-  if (talking || !channel || !mediaStream) return;
-  talking = true; seq = 0; sid = Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+  if (talking || !channel) return;
+  talking = true;
   btn.classList.add("live"); setStatus("● LIVE — speaking", "live");
+  const s = await ensureMic();
+  if (!s){ talking = false; btn.classList.remove("live"); setStatus("Microphone blocked — allow mic access.", "err"); return; }
+  if (!talking) { return; }   // released during the permission prompt
+  seq = 0; sid = Date.now().toString(36)+Math.random().toString(36).slice(2,7);
   const mime = pickMime();
-  try { mr = new MediaRecorder(mediaStream, mime ? { mimeType:mime, audioBitsPerSecond:24000 } : undefined); }
-  catch(e){ try { mr = new MediaRecorder(mediaStream); } catch(e2){ setStatus("Recorder not supported","err"); talking=false; btn.classList.remove("live"); return; } }
+  try { mr = new MediaRecorder(s, mime ? { mimeType:mime, audioBitsPerSecond:24000 } : undefined); }
+  catch(e){ try { mr = new MediaRecorder(s); } catch(e2){ setStatus("Recorder not supported","err"); talking=false; btn.classList.remove("live"); return; } }
   channel.send({ type:"broadcast", event:"talk-start", payload:{ sid, mime: mr.mimeType } });
   mr.ondataavailable = async (e)=>{
     if (!e.data || !e.data.size) return;
