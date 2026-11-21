@@ -3,11 +3,11 @@
 //  Get them in Supabase → Project Settings → API.
 // ============================================================
 
-export const SUPABASE_URL = "https://uxvroodzhtuycsmewgid.supabase.co";
+export const SUPABASE_URL = "https://srv2001110.hstgr.cloud";
 
 // This is the "anon public" key. It is safe to put in the browser
 // because Row Level Security + login protect your data.
-export const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4dnJvb2R6aHR1eWNzbWV3Z2lkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3OTQ3MDcsImV4cCI6MjEwMDM3MDcwN30.OeTNWIm9boniHvDbYX7NBW5h-3-ZPBy_9qFlfAWXrHw";
+export const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzk1MjQxODMyLCJleHAiOjIxMTA2MDE4MzJ9._XV9wHYYS297rdU-3tTKQhsLVKlTkuCZp15-76TPaZk";
 
 // Optional: the business name shown in the header.
 export const BUSINESS_NAME = "thedeveloper";
@@ -16,7 +16,7 @@ export const BUSINESS_NAME = "thedeveloper";
 // e.g. the date + a number). Apps that are already open compare their running value to
 // this one and, when it differs, show an "Update available" button — they never refresh
 // on their own, so an ongoing match is never disturbed. The user taps it when it's safe.
-export const APP_VERSION = "2026-11-20-34";
+export const APP_VERSION = "2026-11-21-35";
 
 // AI voice entry (optional, website only). When true, the browser listens and
 // sends what it heard to the "voice-parse" Edge Function, which uses Claude to
