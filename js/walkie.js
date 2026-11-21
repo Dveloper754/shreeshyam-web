@@ -1,9 +1,8 @@
 // Walkie-talkie LISTENER for the website / desktop / pendrive app (listen only —
-// the mic lives in the mobile app, owner-only). Whoever is signed in here (the
-// owner's book) hears, live, whatever the owner says while holding the mic on
-// the phone. Transport: Supabase Realtime broadcast on channel walkie:<user-id>;
-// because the employee uses the owner's own login, their id == the owner's, so
-// phone (talker) and this page (listener) meet on the same channel automatically.
+// the mic is in the mobile app, owner-only). The phone records natively and streams
+// 16 kHz PCM over Supabase Realtime broadcast on channel walkie:<user-id>; because
+// the employee uses the owner's own login, their id == the owner's, so phone and
+// this page meet on the same channel automatically and privately.
 import { supabase } from "./supabaseClient.js";
 
 if (supabase) initWalkie();
@@ -30,6 +29,9 @@ function initWalkie() {
   addToDom();
 
   let armed = false, channel = null, joinedUid = null;
+  // ---- PCM (native phone mic) playback ----
+  let actx = null, pcmRate = 16000, pcmNext = 0, pcmSid = null;
+  // ---- webm/opus (browser mic) playback, kept as a fallback path ----
   let audioEl=null, ms=null, sb=null, queue=[], curSid=null, usingMSE=false, fallbackChunks=null, fallbackMime="";
   const MSE = window.MediaSource || window.WebKitMediaSource;
   const mseOk = (m)=>{ try { return !!MSE && MSE.isTypeSupported(m); } catch(e){ return false; } };
@@ -38,7 +40,7 @@ function initWalkie() {
   btn.addEventListener("click", ()=>{
     armed = !armed;
     if (armed){
-      try { const Ctx=window.AudioContext||window.webkitAudioContext; if(Ctx) (window.__wkCtx=window.__wkCtx||new Ctx()).resume(); } catch(e){}
+      try { const Ctx=window.AudioContext||window.webkitAudioContext; if(Ctx){ actx = window.__wkCtx = (window.__wkCtx||new Ctx()); actx.resume(); } } catch(e){}
       try { const a=new Audio(); a.muted=true; a.play().catch(()=>{}); } catch(e){}
       btn.className=""; btn.querySelector(".lbl").textContent="Sound on"; btn.querySelector(".ic").textContent="🔊";
     } else {
@@ -47,8 +49,34 @@ function initWalkie() {
     }
   });
 
+  // ---- PCM path ----
+  function pcmStart(sid, rate){
+    pcmSid = sid; pcmRate = rate || 16000; showBanner(true);
+    if (!armed) return;
+    try { const Ctx=window.AudioContext||window.webkitAudioContext; if(Ctx){ actx = window.__wkCtx = (window.__wkCtx||new Ctx()); actx.resume(); } } catch(e){}
+    if (actx) pcmNext = actx.currentTime + 0.18;   // small jitter buffer
+  }
+  function pcmChunk(sid, bytes){
+    if (sid !== pcmSid || !armed || !actx) return;
+    // bytes -> aligned Int16 -> Float32 [-1,1)
+    let i16;
+    try { const abuf = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength); i16 = new Int16Array(abuf); }
+    catch(e){ return; }
+    const f32 = new Float32Array(i16.length);
+    for (let i=0;i<i16.length;i++) f32[i] = i16[i] / 32768;
+    let abuffer;
+    try { abuffer = actx.createBuffer(1, f32.length, pcmRate); } catch(e){ return; }
+    abuffer.getChannelData(0).set(f32);
+    const src = actx.createBufferSource(); src.buffer = abuffer; src.connect(actx.destination);
+    const t = Math.max(pcmNext, actx.currentTime + 0.02);
+    try { src.start(t); } catch(e){ return; }
+    pcmNext = t + abuffer.duration;
+  }
+  function pcmStop(sid){ if (sid === pcmSid) { showBanner(false); pcmSid = null; } }
+
+  // ---- webm/opus path (unused by the native phone, kept for completeness) ----
   function onStart(sid, mime){
-    stopPlayback(); curSid=sid; mime=mime||"audio/webm;codecs=opus"; showBanner(true);
+    stopMse(); curSid=sid; mime=mime||"audio/webm;codecs=opus"; showBanner(true);
     if (!armed) return;
     if (mseOk(mime)){
       usingMSE=true; queue=[]; audioEl=new Audio(); audioEl.autoplay=true; ms=new MSE(); audioEl.src=URL.createObjectURL(ms);
@@ -64,7 +92,9 @@ function initWalkie() {
     curSid=null;
   }
   function pump(){ if(!usingMSE||!sb||sb.updating||!queue.length) return; try{ sb.appendBuffer(queue.shift()); }catch(e){} }
-  function stopPlayback(){ try{ if(audioEl){ audioEl.pause(); audioEl.src=""; } }catch(e){} audioEl=null; ms=null; sb=null; queue=[]; usingMSE=false; fallbackChunks=null; showBanner(false); }
+  function stopMse(){ try{ if(audioEl){ audioEl.pause(); audioEl.src=""; } }catch(e){} audioEl=null; ms=null; sb=null; queue=[]; usingMSE=false; fallbackChunks=null; }
+
+  function stopPlayback(){ stopMse(); pcmSid=null; showBanner(false); }
   let banTimer=null;
   function showBanner(on){ if(!ban) return; if(on){ ban.style.display="block"; clearTimeout(banTimer); banTimer=setTimeout(()=>{ban.style.display="none";},15000); } else { ban.style.display="none"; clearTimeout(banTimer); } }
 
@@ -73,6 +103,9 @@ function initWalkie() {
     leave(); joinedUid=uid;
     channel = supabase.channel("walkie:"+uid, { config:{ broadcast:{ self:false } } });
     channel
+      .on("broadcast", { event:"pcm-start" }, (m)=> pcmStart(m.payload && m.payload.sid, m.payload && m.payload.rate))
+      .on("broadcast", { event:"pcm" },       (m)=> m.payload && pcmChunk(m.payload.sid, b64ToBytes(m.payload.b64)))
+      .on("broadcast", { event:"pcm-stop" },  (m)=> pcmStop(m.payload && m.payload.sid))
       .on("broadcast", { event:"talk-start" }, (m)=> onStart(m.payload && m.payload.sid, m.payload && m.payload.mime))
       .on("broadcast", { event:"audio" },      (m)=> m.payload && onAudio(m.payload.sid, b64ToBytes(m.payload.b64)))
       .on("broadcast", { event:"talk-stop" },  (m)=> onStop(m.payload && m.payload.sid))
