@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Walkie-Talkie</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:Inter,Arial,sans-serif;user-select:none}
+html,body{height:100%}
+body{background:linear-gradient(160deg,#17384a,#0d212c);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;text-align:center;padding:20px}
+.kick{color:#ffd34d;font-weight:800;letter-spacing:2px;font-size:12px;margin-bottom:4px}
+h1{font-size:22px;font-weight:800;margin-bottom:6px}
+.sub{color:#cfe4ea;font-size:13px;max-width:320px;margin:0 auto 26px}
+.btn{width:230px;height:230px;border-radius:50%;border:none;outline:none;
+  background:radial-gradient(circle at 50% 38%,#2f6d7f,#1f4e5f);
+  color:#fff;font-size:21px;font-weight:800;letter-spacing:.5px;
+  box-shadow:0 18px 50px rgba(0,0,0,.45),inset 0 2px 8px rgba(255,255,255,.15);
+  transition:transform .08s ease, background .12s ease;cursor:pointer;touch-action:none}
+.btn .mic{font-size:58px;display:block;margin-bottom:8px;line-height:1}
+.btn.live{background:radial-gradient(circle at 50% 38%,#ff6b6b,#d62f2f);transform:scale(.96);
+  box-shadow:0 0 0 10px rgba(255,107,107,.18),0 18px 50px rgba(0,0,0,.45)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.status{margin-top:26px;font-size:14px;min-height:22px;color:#cfe4ea}
+.status.live{color:#ff8a8a;font-weight:700}
+.status.err{color:#ffb3b3}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#7bdca0;margin-right:6px;vertical-align:middle}
+.dot.off{background:#c0693f}
+.hint{position:fixed;bottom:16px;left:0;right:0;font-size:11px;color:#8aa6b2;padding:0 20px}
+</style></head>
+<body>
+  <div class="kick">OWNER INTERCOM</div>
+  <h1>Walkie-Talkie</h1>
+  <div class="sub">Hold the button and speak. Whoever is working in your book on the website / desktop / pendrive app will hear you live.</div>
+
+  <button id="talk" class="btn" disabled>
+    <span class="mic">🎙️</span>
+    HOLD<br>TO&nbsp;TALK
+  </button>
+
+  <div id="status" class="status"><span class="dot off"></span>Connecting…</div>
+  <div class="hint">Release to stop. Only you (the owner) can talk; the others only listen.</div>
+
+<script src="/js/vendor/supabase.umd.js"></script>
+<script type="module">
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "/config.js";
+
+const $ = (id) => document.getElementById(id);
+const btn = $("talk"), statusEl = $("status");
+function setStatus(txt, cls){ statusEl.className = "status " + (cls||""); statusEl.innerHTML = (cls==="live"?"":'<span class="dot'+(cls?"":" off")+'"></span>') + txt; }
+
+// ---- identity: token passed by the mobile app in the URL hash (#t=...),
+//      else fall back to an existing logged-in browser session. ----
+function hashParam(k){
+  const h = (location.hash||"").replace(/^#/,"");
+  for (const part of h.split("&")){ const [a,b] = part.split("="); if (decodeURIComponent(a)===k) return decodeURIComponent(b||""); }
+  return "";
+}
+function uidFromJwt(tok){
+  try { const p = JSON.parse(atob(tok.split(".")[1].replace(/-/g,"+").replace(/_/g,"/"))); return p.sub || ""; } catch(e){ return ""; }
+}
+
+const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { persistSession:false, autoRefreshToken:false },
+});
+
+let channel=null, mediaStream=null, mr=null, seq=0, sid=null, talking=false;
+
+async function init(){
+  let token = hashParam("t");
+  let uid   = hashParam("uid");
+  if (token) { client.realtime.setAuth(token); if(!uid) uid = uidFromJwt(token); }
+  if (!uid) {
+    // running inside a logged-in browser instead of the app
+    try { const { data } = await client.auth.getSession(); if (data.session){ uid = data.session.user.id; client.realtime.setAuth(data.session.access_token); } } catch(e){}
+  }
+  if (!uid){ setStatus("Not signed in — open this from the app.", "err"); return; }
+
+  channel = client.channel("walkie:"+uid, { config:{ broadcast:{ self:false, ack:false } } });
+  channel.subscribe((st)=>{
+    if (st === "SUBSCRIBED"){ btn.disabled=false; setStatus("Ready — hold to talk"); }
+    else if (st === "CHANNEL_ERROR" || st === "TIMED_OUT"){ setStatus("Connection problem — retrying…", "err"); }
+  });
+
+  // pre-warm the mic so the first press has no delay (and surfaces permission early)
+  try { mediaStream = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:true, noiseSuppression:true, autoGainControl:true } }); }
+  catch(e){ setStatus("Microphone blocked — allow mic access.", "err"); btn.disabled=true; }
+}
+
+function pickMime(){
+  const opts = ["audio/webm;codecs=opus","audio/webm","audio/ogg;codecs=opus"];
+  for (const m of opts) if (window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m;
+  return "";
+}
+
+async function startTalk(){
+  if (talking || !channel || !mediaStream) return;
+  talking = true; seq = 0; sid = Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+  btn.classList.add("live"); setStatus("● LIVE — speaking", "live");
+  const mime = pickMime();
+  try { mr = new MediaRecorder(mediaStream, mime ? { mimeType:mime, audioBitsPerSecond:24000 } : undefined); }
+  catch(e){ try { mr = new MediaRecorder(mediaStream); } catch(e2){ setStatus("Recorder not supported","err"); talking=false; btn.classList.remove("live"); return; } }
+  channel.send({ type:"broadcast", event:"talk-start", payload:{ sid, mime: mr.mimeType } });
+  mr.ondataavailable = async (e)=>{
+    if (!e.data || !e.data.size) return;
+    const buf = new Uint8Array(await e.data.arrayBuffer());
+    let bin=""; const CH=0x8000;
+    for (let i=0;i<buf.length;i+=CH) bin += String.fromCharCode.apply(null, buf.subarray(i,i+CH));
+    channel.send({ type:"broadcast", event:"audio", payload:{ sid, seq:seq++, b64: btoa(bin) } });
+  };
+  mr.onstop = ()=>{ channel.send({ type:"broadcast", event:"talk-stop", payload:{ sid } }); };
+  mr.start(250); // emit a chunk every 250ms -> near-live
+}
+
+function stopTalk(){
+  if (!talking) return;
+  talking = false;
+  btn.classList.remove("live"); setStatus("Ready — hold to talk");
+  try { if (mr && mr.state!=="inactive") mr.stop(); } catch(e){}
+}
+
+// pointer + touch, with release caught even if finger slides off the button
+btn.addEventListener("pointerdown", (e)=>{ e.preventDefault(); startTalk(); });
+window.addEventListener("pointerup", ()=> stopTalk());
+window.addEventListener("pointercancel", ()=> stopTalk());
+btn.addEventListener("contextmenu", (e)=> e.preventDefault());
+document.addEventListener("visibilitychange", ()=>{ if (document.hidden) stopTalk(); });
+
+init();
+</script>
+</body></html>
